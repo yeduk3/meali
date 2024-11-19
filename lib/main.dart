@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:meali/screen/login_page.dart';
-import 'package:meali/screen/main_page.dart';
 import 'package:meali/static/color_system.dart';
 
 void main() async {
