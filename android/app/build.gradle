@@ -5,6 +5,15 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+// hide key
+def dotenv = new Properties()
+def envFile = file("${rootProject.projectDir}/../.env")
+if(envFile.exists()) {
+    envFile.withInputStream { stream -> dotenv.load(stream) }
+} else {
+    throw new FileNotFoundException("Could not file .env file at: ${envFile.path}")
+}
+
 android {
     namespace = "com.example.meali"
     compileSdk = flutter.compileSdkVersion
@@ -28,6 +37,13 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // Add manifestPlaceholders
+        def kakaoKey = dotenv['KAKAO_NATIVE_APP_KEY']
+        if(kakaoKey == null) {
+            throw new FileNotFoundException("KAKAO_NATIVE_APP_KEY not found in .env file")
+        }
+        manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = kakaoKey
     }
 
     buildTypes {

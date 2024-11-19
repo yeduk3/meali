@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ColorSystem {
+  static const Color brandColor = Color(0xFF25C0B3);
+
   static const Color black = Colors.black;
 
   /// 0xFF191F28

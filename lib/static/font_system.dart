@@ -2,6 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:meali/static/color_system.dart';
 
 class FontSystem {
+  static const TextStyle appNameTitle = TextStyle(
+    color: ColorSystem.brandColor,
+    fontSize: 32,
+    fontFamily: 'PartialSans',
+  );
+
+  static const TextStyle inputStyle = TextStyle(
+    color: Color(0xFFB3B3B3),
+    fontSize: 16,
+    fontFamily: 'Pretendard',
+    fontWeight: FontWeight.w400,
+  );
+
+  static const TextStyle kakaoInput = TextStyle(
+    color: Color(0xFF191F28),
+    fontSize: 16,
+    fontFamily: 'Pretendard',
+    fontWeight: FontWeight.w600,
+  );
+
   static const TextStyle title = TextStyle(
     color: ColorSystem.gray01,
     fontSize: 16,
