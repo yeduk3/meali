@@ -14,6 +14,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   kakao_flutter_sdk_user: ^1.9.6
   flutter_dotenv: ^5.0.2
+  kakao_flutter_sdk_talk: ^1.9.6
 
 dev_dependencies:
   flutter_test:
@@ -29,6 +30,7 @@ flutter:
     - assets/images/users_icon.png
     - assets/images/hamburger_icon.png
     - assets/images/test_user_image.jpeg
+    - assets/images/test_user_image2.jpeg
     - assets/images/arrow_drop_down_icon.png
     - assets/images/add_user_icon.png
     - assets/images/temp_icon.png

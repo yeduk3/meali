@@ -21,6 +21,9 @@ class UserInfo extends StatelessWidget {
   /// TextStyle which is applied to Text name
   final TextStyle style;
 
+  /// [Debug]
+  final bool isNetwork;
+
   const UserInfo({
     super.key,
     required this.iconSize,
@@ -29,6 +32,7 @@ class UserInfo extends StatelessWidget {
     required this.imageURL,
     required this.name,
     required this.style,
+    this.isNetwork = false,
   });
 
   const UserInfo.vertical({
@@ -39,6 +43,7 @@ class UserInfo extends StatelessWidget {
     required this.imageURL,
     required this.name,
     required this.style,
+    this.isNetwork = false,
   });
 
   const UserInfo.horizontal({
@@ -49,6 +54,7 @@ class UserInfo extends StatelessWidget {
     required this.imageURL,
     required this.name,
     this.style = FontSystem.name14,
+    this.isNetwork = false,
   });
 
   @override
@@ -59,6 +65,7 @@ class UserInfo extends StatelessWidget {
         UserImage(
           size: iconSize,
           imageURL: imageURL,
+          isNetwork: isNetwork,
         ),
         SizedBox(
           height: betweenSpace,

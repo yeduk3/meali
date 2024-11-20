@@ -10,9 +10,13 @@ class MainPage extends StatefulWidget {
   const MainPage({
     super.key,
     required this.groups,
+    required this.username,
+    required this.imageURL,
   });
 
   final List<String> groups;
+  final String username;
+  final String imageURL;
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -44,36 +48,37 @@ class _MainPageState extends State<MainPage> {
               right: 20,
               bottom: 11,
             ),
-            child: const Row(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 UserInfo.vertical(
-                  name: "이용규",
-                  imageURL: "assets/images/test_user_image.jpeg",
+                  name: widget.username,
+                  imageURL: widget.imageURL,
                   style: FontSystem.nameme12,
+                  isNetwork: true,
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 15,
                 ),
-                UserInfo.vertical(
+                const UserInfo.vertical(
                   name: "이용규",
                   imageURL: "assets/images/test_user_image.jpeg",
                   style: FontSystem.nameother12,
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 15,
                 ),
-                UserInfo.vertical(
+                const UserInfo.vertical(
                   name: "메아리",
                   imageURL: "assets/images/test_user_image.jpeg",
                   style: FontSystem.nameother12,
                 ),
 
                 /// [User Add Button] Last space is 12
-                SizedBox(
+                const SizedBox(
                   width: 12,
                 ),
-                UserAddButton(),
+                const UserAddButton(),
               ],
             ),
           ),
