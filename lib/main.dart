@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'package:meali/screen/login_page.dart';
+import 'package:meali/loginscreen/login_page.dart';
 import 'package:meali/static/color_system.dart';
 
 void main() async {
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: ColorSystem.gray01,
         ),
       ),
-      home: const LoginPage(),
+      home: LoginPage(),
     );
     // const MainPage(
     //   groups: ["전체", "도란도란 용규네 자취방", "본가"],
