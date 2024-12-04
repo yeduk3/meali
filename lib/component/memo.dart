@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meali/common/user_data.dart';
 import 'package:meali/component/checkboxtile.dart';
 import 'package:meali/component/user_info.dart';
 import 'package:meali/static/color_system.dart';
@@ -8,11 +9,8 @@ class Memo extends StatelessWidget {
   /// title of memo
   final String title;
 
-  /// user name
-  final String name;
-
-  /// user image url
-  final String imageURL;
+  /// user data(name, thumbnailUrl)
+  final UserData userdata;
 
   /// edit time
   final DateTime timeStamp;
@@ -23,8 +21,7 @@ class Memo extends StatelessWidget {
   const Memo({
     super.key,
     required this.title,
-    required this.name,
-    required this.imageURL,
+    required this.userdata,
     required this.timeStamp,
     required this.content,
   });
@@ -74,10 +71,7 @@ class Memo extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const UserInfo.horizontal(
-                imageURL: "assets/images/test_user_image.jpeg",
-                name: "이용규",
-              ),
+              UserInfo.horizontal(userdata: userdata),
               Text(timeStamp.toString())
             ],
           ),

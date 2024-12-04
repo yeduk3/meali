@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meali/common/user_data.dart';
 import 'package:meali/component/user_image.dart';
 import 'package:meali/static/font_system.dart';
 
@@ -12,11 +13,8 @@ class UserInfo extends StatelessWidget {
   /// true = vertical, false = horizontal
   final bool direction;
 
-  /// url of user image
-  final String imageURL;
-
-  /// name of user
-  final String name;
+  /// user data(name, thumbnailUrl)
+  final UserData userdata;
 
   /// TextStyle which is applied to Text name
   final TextStyle style;
@@ -29,10 +27,9 @@ class UserInfo extends StatelessWidget {
     required this.iconSize,
     required this.betweenSpace,
     required this.direction,
-    required this.imageURL,
-    required this.name,
+    required this.userdata,
     required this.style,
-    this.isNetwork = false,
+    this.isNetwork = true,
   });
 
   const UserInfo.vertical({
@@ -40,10 +37,9 @@ class UserInfo extends StatelessWidget {
     this.iconSize = 48,
     this.betweenSpace = 2,
     this.direction = true,
-    required this.imageURL,
-    required this.name,
+    required this.userdata,
     required this.style,
-    this.isNetwork = false,
+    this.isNetwork = true,
   });
 
   const UserInfo.horizontal({
@@ -51,10 +47,9 @@ class UserInfo extends StatelessWidget {
     this.iconSize = 28,
     this.betweenSpace = 8,
     this.direction = false,
-    required this.imageURL,
-    required this.name,
+    required this.userdata,
     this.style = FontSystem.name14,
-    this.isNetwork = false,
+    this.isNetwork = true,
   });
 
   @override
@@ -64,7 +59,7 @@ class UserInfo extends StatelessWidget {
       children: [
         UserImage(
           size: iconSize,
-          imageURL: imageURL,
+          imageURL: userdata.thumbnailUrl,
           isNetwork: isNetwork,
         ),
         SizedBox(
@@ -75,7 +70,7 @@ class UserInfo extends StatelessWidget {
           height: direction ? 26 : 20,
           child: Center(
             child: Text(
-              name,
+              userdata.username,
               style: style,
             ),
           ),

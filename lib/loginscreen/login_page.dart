@@ -7,7 +7,7 @@ import 'package:meali/static/font_system.dart';
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
 
-  LoginController loginController = LoginController();
+  final LoginController loginController = LoginController();
 
   @override
   Widget build(BuildContext context) {

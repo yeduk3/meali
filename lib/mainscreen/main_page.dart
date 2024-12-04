@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meali/component/memo.dart';
 import 'package:meali/component/user_image.dart';
+import 'package:meali/mainscreen/data_loader.dart';
 import 'package:meali/static/color_system.dart';
 import 'package:meali/static/font_system.dart';
 import 'package:meali/component/customdropdown.dart' as customdropdown;
@@ -10,13 +11,9 @@ class MainPage extends StatefulWidget {
   const MainPage({
     super.key,
     required this.groups,
-    required this.username,
-    required this.imageURL,
   });
 
   final List<String> groups;
-  final String username;
-  final String imageURL;
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -24,9 +21,11 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   String? selectedValue = "전체";
+  int currentGroupUserCount = 0;
 
   @override
   Widget build(BuildContext context) {
+    print("User ID: ${DataLoader().myUserData.userId}");
     return Scaffold(
       /// [AppBar]
       appBar: mealiAppBar(),
@@ -48,30 +47,47 @@ class _MainPageState extends State<MainPage> {
               right: 20,
               bottom: 11,
             ),
+            // child:
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 UserInfo.vertical(
-                  name: widget.username,
-                  imageURL: widget.imageURL,
                   style: FontSystem.nameme12,
                   isNetwork: true,
+                  userdata: DataLoader().myUserData,
                 ),
-                const SizedBox(
-                  width: 15,
-                ),
-                const UserInfo.vertical(
-                  name: "이용규",
-                  imageURL: "assets/images/test_user_image.jpeg",
-                  style: FontSystem.nameother12,
-                ),
-                const SizedBox(
-                  width: 15,
-                ),
-                const UserInfo.vertical(
-                  name: "메아리",
-                  imageURL: "assets/images/test_user_image.jpeg",
-                  style: FontSystem.nameother12,
+                FutureBuilder(
+                  future: DataLoader().getSameGroupUserData(),
+                  builder: (context, snapshot) {
+                    print("Future Builder for user list");
+
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasData) {
+                      print(snapshot);
+
+                      return Row(
+                        children: snapshot.data!
+                            .map(
+                              (e) => Row(
+                                children: [
+                                  const SizedBox(
+                                    width: 15,
+                                  ),
+                                  UserInfo.vertical(
+                                    userdata: e,
+                                    style: FontSystem.nameother12,
+                                  )
+                                ],
+                              ),
+                            )
+                            .toList(),
+                      );
+                    } else {
+                      print("No data for future builder");
+                      return const SizedBox.shrink();
+                    }
+                  },
                 ),
 
                 /// [User Add Button] Last space is 12
@@ -87,43 +103,64 @@ class _MainPageState extends State<MainPage> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(20.0),
-              child: ReorderableListView(
-                onReorder: (oldIndex, newIndex) {},
-                children: [
-                  Memo(
-                    key: const ValueKey(1),
-                    title: "오늘 저녁 메뉴 돼지고기김치찌개임. 반박시 너 말 아님.",
-                    imageURL: "assets/images/test_user_image.jpeg",
-                    name: "test",
-                    timeStamp: DateTime.now(),
-                    content: true,
-                  ),
-                  Memo(
-                    key: const ValueKey(2),
-                    title: "오늘 저녁 메뉴 돼지고기김치찌개임. 반박시 너 말 아님.",
-                    imageURL: "assets/images/test_user_image.jpeg",
-                    name: "test",
-                    timeStamp: DateTime.now(),
-                    content: true,
-                  ),
-                  Memo(
-                    key: const ValueKey(3),
-                    title: "오늘 저녁 메뉴 돼지고기김치찌개임. 반박시 너 말 아님.",
-                    imageURL: "assets/images/test_user_image.jpeg",
-                    name: "test",
-                    timeStamp: DateTime.now(),
-                    content: true,
-                  ),
-                  Memo(
-                    key: const ValueKey(4),
-                    title: "오늘 저녁 메뉴 돼지고기김치찌개임. 반박시 너 말 아님.",
-                    imageURL: "assets/images/test_user_image.jpeg",
-                    name: "test",
-                    timeStamp: DateTime.now(),
-                    content: false,
-                  ),
-                ],
+              child: FutureBuilder(
+                future: DataLoader().getGroupContent(),
+                builder: (_, snapshot) {
+                  print("Future Builder for group memo");
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasData) {
+                    return ReorderableListView(
+                      onReorder: (oldIndex, newIndex) {},
+                      children: snapshot.data!
+                          .map((e) => Memo(
+                              key: ValueKey(e.contentID),
+                              title: e.content,
+                              userdata: DataLoader().myUserData,
+                              timeStamp: DateTime.now(),
+                              content: true))
+                          .toList(),
+                    );
+                  } else {
+                    print("No data for future builder");
+                    return const SizedBox.shrink();
+                  }
+                },
               ),
+              //   child: ReorderableListView(
+              //     onReorder: (oldIndex, newIndex) {},
+              //     children: [
+              //       Memo(
+              //         key: const ValueKey(1),
+              //         title: "오늘 저녁 메뉴 돼지고기김치찌개임. 반박시 너 말 아님.",
+              //         timeStamp: DateTime.now(),
+              //         content: true,
+              //         userdata: DataLoader().myUserData,
+              //       ),
+              //       Memo(
+              //         key: const ValueKey(2),
+              //         title: "오늘 저녁 메뉴 돼지고기김치찌개임. 반박시 너 말 아님.",
+              //         timeStamp: DateTime.now(),
+              //         content: true,
+              //         userdata: DataLoader().myUserData,
+              //       ),
+              //       Memo(
+              //         key: const ValueKey(3),
+              //         title: "오늘 저녁 메뉴 돼지고기김치찌개임. 반박시 너 말 아님.",
+              //         timeStamp: DateTime.now(),
+              //         content: true,
+              //         userdata: DataLoader().myUserData,
+              //       ),
+              //       Memo(
+              //         key: const ValueKey(4),
+              //         title: "오늘 저녁 메뉴 돼지고기김치찌개임. 반박시 너 말 아님.",
+              //         timeStamp: DateTime.now(),
+              //         content: false,
+              //         userdata: DataLoader().myUserData,
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ),
           )
         ],
@@ -214,9 +251,19 @@ class _MainPageState extends State<MainPage> {
                   const SizedBox(
                     width: 4,
                   ),
-                  const Text(
-                    "4",
-                    style: FontSystem.count,
+                  // TODO: Inefficiency
+                  FutureBuilder(
+                    future: DataLoader().getSameGroupUserData(),
+                    builder: (_, snapshot) {
+                      if (snapshot.hasData) {
+                        return Text(
+                          snapshot.data!.length.toString(),
+                          style: FontSystem.count,
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
                   ),
                 ],
               ),
