@@ -1,13 +1,45 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:meali/component/user_input.dart';
 import 'package:meali/loginscreen/login_controller.dart';
+import 'package:meali/mainscreen/main_page.dart';
 import 'package:meali/static/color_system.dart';
 import 'package:meali/static/font_system.dart';
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final LoginController loginController = LoginController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _init();
+    });
+  }
+
+  void _init() async {
+    if (await loginController.haskakaoLoginToken()) {
+      if (kDebugMode) print('Token exists');
+      // if context is mounted
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const MainPage(),
+          ),
+        );
+      } else {
+        throw Exception('Context is not mounted');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +87,18 @@ class LoginPage extends StatelessWidget {
               const SizedBox(height: 40),
               InputFilledButton.kakao(
                 onPressed: () async {
-                  loginController.loginWithKakao(context);
+                  bool isLoginSuccess = await LoginController().loginWithKakao(context);
+
+                  // mount: 비동기 작업 간, 위젯이 여전히 활성되어있는지 체크
+                  if (isLoginSuccess && context.mounted) {
+                    /// [Page Move]
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MainPage(),
+                      ),
+                    );
+                  }
                 },
               ),
             ],

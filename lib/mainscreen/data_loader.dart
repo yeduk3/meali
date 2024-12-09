@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:meali/common/group_data.dart';
+import 'package:meali/common/group_content.dart';
+import 'package:meali/common/group_info.dart';
 import 'package:meali/common/user_data.dart';
 import 'package:http/http.dart' as http;
 
@@ -26,14 +28,14 @@ class DataLoader {
   /// User data who logged in
   final UserData myUserData;
 
-  Future<List<UserData>> getSameGroupUserData() async {
-    print("Get Same Group User Data");
+  Future<List<UserData>> getSameGroupUserData(int groupID) async {
+    // if (kDebugMode) print("Get Same Group User Data");
     Uri url = Uri.http(
       dotenv.env['SERVER_HOST']!,
       '/samegroupusers',
       {
         'userID': '${myUserData.userId}',
-        'groupID': '2',
+        'groupID': '$groupID',
       },
     );
 
@@ -41,7 +43,7 @@ class DataLoader {
     if (response.statusCode == 200) {
       var resjson = convert.jsonDecode(response.body) as Map<String, dynamic>;
 
-      print("Mapping start: ${resjson["sameGroupUsers"]}");
+      // if (kDebugMode) print("Mapping start: ${resjson["sameGroupUsers"]}");
       List<dynamic> userList = resjson["sameGroupUsers"];
       List<UserData> userDataList = userList.map((e) {
         return UserData(
@@ -50,23 +52,22 @@ class DataLoader {
           thumbnailUrl: e["thumbnailUrl"] as String,
         );
       }).toList();
-      print(userDataList);
+      // if (kDebugMode) print(userDataList);
       return userDataList;
     } else {
-      print("Connection error with status code: ${response.statusCode}");
-      throw Exception(
-          "Connection error with status code: ${response.statusCode}");
+      if (kDebugMode) print("Connection error with status code: ${response.statusCode}");
+      throw Exception("Connection error with status code: ${response.statusCode}");
     }
   }
 
-  Future<List<GroupData>> getGroupContent() async {
-    print("Get Group Data");
+  Future<List<GroupContent>> getGroupContent(int groupID) async {
+    // if (kDebugMode) print("Get Group Data");
     Uri url = Uri.http(
       dotenv.env['SERVER_HOST']!,
       '/samegroupdata',
       {
         'userID': '${myUserData.userId}',
-        'groupID': '1',
+        'groupID': '$groupID',
       },
     );
 
@@ -74,21 +75,51 @@ class DataLoader {
     if (response.statusCode == 200) {
       var resjson = convert.jsonDecode(response.body) as Map<String, dynamic>;
 
-      print("Mapping start: ${resjson["groupData"]}");
+      // if (kDebugMode) print("Mapping start: ${resjson["groupData"]}");
       List<dynamic> userList = resjson["groupData"];
-      List<GroupData> userDataList = userList
-          .map((e) => GroupData(
+      List<GroupContent> userDataList = userList
+          .map((e) => GroupContent(
                 groupID: e["groupID"] as int,
                 content: e["content"] as String,
                 contentID: e["contentID"] as int,
               ))
           .toList();
-      print(userDataList);
+      // if (kDebugMode) print(userDataList);
       return userDataList;
     } else {
-      print("Connection error with status code: ${response.statusCode}");
-      throw Exception(
-          "Connection error with status code: ${response.statusCode}");
+      if (kDebugMode) print("Connection error with status code: ${response.statusCode}");
+      throw Exception("Connection error with status code: ${response.statusCode}");
+    }
+  }
+
+  Future<List<GroupInfo>> getGroupList() async {
+    // if (kDebugMode) print("Get Group Name List for App Bar");
+    Uri url = Uri.http(
+      dotenv.env['SERVER_HOST']!,
+      '/groupinfolist',
+      {
+        'userID': '${myUserData.userId}',
+      },
+    );
+
+    http.Response response = await http.get(url);
+    if (response.statusCode == 200) {
+      var resjson = convert.jsonDecode(response.body) as Map<String, dynamic>;
+
+      // if (kDebugMode) print("Mapping start: ${resjson["groupnamelist"]}");
+      // if (kDebugMode) print(resjson["groupnamelist"].runtimeType);
+      List<dynamic> list = resjson["groupInfoList"];
+      List<GroupInfo> groupList = list
+          .map((e) => GroupInfo(
+                groupName: e["groupName"] as String,
+                groupID: e["groupID"] as int,
+              ))
+          .toList();
+      // if (kDebugMode) print(groupList);
+      return groupList;
+    } else {
+      if (kDebugMode) print("Connection error with status code: ${response.statusCode}");
+      throw Exception("Connection error with status code: ${response.statusCode}");
     }
   }
 }

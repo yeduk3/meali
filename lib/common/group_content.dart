@@ -1,5 +1,5 @@
-class GroupData {
-  GroupData({
+class GroupContent {
+  GroupContent({
     required this.content,
     required this.groupID,
     required this.contentID,

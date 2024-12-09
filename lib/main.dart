@@ -33,8 +33,5 @@ class MyApp extends StatelessWidget {
       ),
       home: LoginPage(),
     );
-    // const MainPage(
-    //   groups: ["전체", "도란도란 용규네 자취방", "본가"],
-    // ));
   }
 }

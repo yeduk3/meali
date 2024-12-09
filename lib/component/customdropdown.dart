@@ -357,7 +357,9 @@ class _DropdownMenuState<T> extends State<_DropdownMenu<T>> {
                     child: ListView(
                       // Ensure this always inherits the PrimaryScrollController
                       primary: true,
-                      padding: kMaterialListPadding,
+                      // padding: kMaterialListPadding,
+                      // [Changed] list's padding on top and bottom erase
+                      padding: const EdgeInsets.all(0),
                       shrinkWrap: true,
                       children: children,
                     ),
