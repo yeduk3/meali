@@ -64,7 +64,7 @@ class DataLoader {
     // if (kDebugMode) print("Get Group Data");
     Uri url = Uri.http(
       dotenv.env['SERVER_HOST']!,
-      '/samegroupdata',
+      '/samegroupcontent',
       {
         'userID': '${myUserData.userId}',
         'groupID': '$groupID',
@@ -75,8 +75,8 @@ class DataLoader {
     if (response.statusCode == 200) {
       var resjson = convert.jsonDecode(response.body) as Map<String, dynamic>;
 
-      // if (kDebugMode) print("Mapping start: ${resjson["groupData"]}");
-      List<dynamic> userList = resjson["groupData"];
+      // if (kDebugMode) print("Mapping start: ${resjson["groupContents"]}");
+      List<dynamic> userList = resjson["groupContents"];
       List<GroupContent> userDataList = userList
           .map((e) => GroupContent(
                 groupID: e["groupID"] as int,
@@ -84,7 +84,7 @@ class DataLoader {
                 contentID: e["contentID"] as int,
               ))
           .toList();
-      // if (kDebugMode) print(userDataList);
+      if (kDebugMode) print(userDataList);
       return userDataList;
     } else {
       if (kDebugMode) print("Connection error with status code: ${response.statusCode}");
@@ -120,6 +120,28 @@ class DataLoader {
     } else {
       if (kDebugMode) print("Connection error with status code: ${response.statusCode}");
       throw Exception("Connection error with status code: ${response.statusCode}");
+    }
+  }
+
+  Future<void> postData(int groupID, String content) async {
+    Uri uri = Uri.http(
+      dotenv.env['SERVER_HOST']!,
+      'uploadcontent',
+    );
+
+    var body = convert.jsonEncode({
+      'groupID': "$groupID",
+      'content': content,
+    });
+
+    http.Response response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: body,
+    );
+    if (kDebugMode) {
+      print("응답 결과: ${response.statusCode}");
+      print("응답 결과: ${response.body}");
     }
   }
 }

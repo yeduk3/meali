@@ -37,6 +37,7 @@ flutter:
     - assets/images/temp_icon.png
     - assets/images/temp_icon2x.png
     - assets/images/kakao_login_button.png
+    - assets/images/write_icon.png
     # environment vars.
     - .env
 

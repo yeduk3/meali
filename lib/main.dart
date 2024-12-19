@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:meali/loginscreen/login_page.dart';
 import 'package:meali/static/color_system.dart';
+import 'package:meali/static/font_system.dart';
 
 void main() async {
   await dotenv.load();
@@ -29,9 +30,10 @@ class MyApp extends StatelessWidget {
         appBarTheme: const AppBarTheme(
           backgroundColor: ColorSystem.white,
           foregroundColor: ColorSystem.gray01,
+          surfaceTintColor: ColorSystem.white,
         ),
       ),
-      home: LoginPage(),
+      home: const LoginPage(),
     );
   }
 }

@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:meali/common/group_content.dart';
 import 'package:meali/common/group_info.dart';
@@ -24,6 +25,24 @@ class _MainPageState extends State<MainPage> {
   List<UserData> sameGroupUsers = [];
   List<GroupContent> sameGroupContent = [];
   List<GroupInfo> groupInfos = [];
+
+  final ScrollController _controller = ScrollController();
+
+  void _scrollToHead() {
+    _controller.animateTo(
+      _controller.position.maxScrollExtent,
+      duration: const Duration(seconds: 1),
+      curve: Curves.bounceOut,
+    );
+  }
+
+  Future<void> _updateSameGroupContent(int groupID) async {
+    List<GroupContent> sameGroupContentReceiver = [];
+    sameGroupContentReceiver = await DataLoader().getGroupContent(groupID);
+    setState(() {
+      sameGroupContent = sameGroupContentReceiver;
+    });
+  }
 
   @override
   void initState() {
@@ -108,14 +127,39 @@ class _MainPageState extends State<MainPage> {
               ],
             ),
           ),
+          Padding(
+              padding: const EdgeInsets.only(bottom: 12, left: 20, right: 20, top: 20),
+              // child: ExpandableButton(),
+              child: Column(
+                children: [
+                  TextField(
+                    onSubmitted: (value) async {
+                      var gID = groupInfos.firstWhere((element) => element.groupName == selectedValue).groupID;
+                      await DataLoader().postData(gID, value);
+                      await _updateSameGroupContent(gID);
+                      _scrollToHead();
+                    },
+                  )
+                ],
+              )),
 
           /// [Memo List with ReorderableListView]
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 12, top: 0),
               child: ReorderableListView(
+                scrollController: _controller,
+                reverse: true,
                 onReorder: (oldIndex, newIndex) {},
-                children: sameGroupContent.map((e) => Memo(key: ValueKey(e.contentID), title: e.content, userdata: DataLoader().myUserData, timeStamp: DateTime.now(), content: true)).toList(),
+                children: sameGroupContent
+                    .map((e) => Memo(
+                          key: ValueKey(e.contentID),
+                          title: e.content,
+                          userdata: DataLoader().myUserData,
+                          timeStamp: DateTime.now(),
+                          content: true,
+                        ))
+                    .toList(),
               ),
             ),
           )
@@ -129,49 +173,68 @@ class _MainPageState extends State<MainPage> {
   AppBar mealiAppBar() {
     return AppBar(
       toolbarHeight: 54,
-      title: customdropdown.DropdownButton<String>(
-        value: selectedValue,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        elevation: 0,
-        isExpanded: true,
-        style: FontSystem.title,
-        underline: const SizedBox(),
-        dropdownColor: ColorSystem.white,
-        icon: const SizedBox.shrink(),
-        selectedItemBuilder: (context) => _appBarSelectedItemBuilder(
-          context,
-          groupInfos
-              .map(
-                (e) => e.groupName,
-              )
-              .toList(),
-        ), // when selected, auto callback
-        items: _appBarDropdownMenuItemBuilder(
-          groupInfos
-              .map(
-                (e) => e.groupName,
-              )
-              .toList(),
+      titleSpacing: 0,
+      title: TextButton(
+        style: TextButton.styleFrom(
+          overlayColor: ColorSystem.black,
+          shape: const LinearBorder(),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
         ),
-        onChanged: (String? value) async {
-          int i = 0;
-          for (; i < groupInfos.length; ++i) {
-            if (groupInfos[i].groupName == value) break;
-          }
-          List<UserData> sameGroupUsersReceiver = [];
-          List<GroupContent> sameGroupContentReceiver = [];
-          if (groupInfos[i].groupName != selectedValue) {
-            sameGroupUsersReceiver = await DataLoader().getSameGroupUserData(groupInfos[i].groupID);
-            sameGroupContentReceiver = await DataLoader().getGroupContent(groupInfos[i].groupID);
-          }
-
-          setState(() {
-            selectedValue = value!;
-            sameGroupUsers = sameGroupUsersReceiver;
-            sameGroupContent = sameGroupContentReceiver;
-          });
-        },
+        onPressed: showGroupListModal,
+        child: Row(
+          children: [
+            Text(
+              selectedValue ?? "그룹이 없습니다",
+              style: FontSystem.title,
+            ),
+            const SizedBox(width: 8),
+            Image.asset(
+              "assets/images/users_icon.png",
+              width: 12,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              (sameGroupUsers.length + 1).toString(),
+              style: FontSystem.count,
+            ),
+          ],
+        ),
       ),
+      // customdropdown.DropdownButton<String>(
+      //   value: selectedValue,
+      //   padding: const EdgeInsets.symmetric(horizontal: 20),
+      //   elevation: 0,
+      //   isExpanded: true,
+      //   style: FontSystem.title,
+      //   underline: const SizedBox(),
+      //   dropdownColor: ColorSystem.white,
+      //   icon: const SizedBox.shrink(),
+      //   selectedItemBuilder: (context) => _appBarSelectedItemBuilder(
+      //     context,
+      //     groupInfos.map((e) => e.groupName).toList(),
+      //   ), // when selected, auto callback
+      //   items: _appBarDropdownMenuItemBuilder(
+      //     groupInfos.map((e) => e.groupName).toList(),
+      //   ),
+      //   onChanged: (String? value) async {
+      //     int i = 0;
+      //     for (; i < groupInfos.length; ++i) {
+      //       if (groupInfos[i].groupName == value) break;
+      //     }
+      //     List<UserData> sameGroupUsersReceiver = [];
+      //     List<GroupContent> sameGroupContentReceiver = [];
+      //     if (groupInfos[i].groupName != selectedValue) {
+      //       sameGroupUsersReceiver = await DataLoader().getSameGroupUserData(groupInfos[i].groupID);
+      //       sameGroupContentReceiver = await DataLoader().getGroupContent(groupInfos[i].groupID);
+      //     }
+
+      //     setState(() {
+      //       selectedValue = value!;
+      //       sameGroupUsers = sameGroupUsersReceiver;
+      //       sameGroupContent = sameGroupContentReceiver;
+      //     });
+      //   },
+      // ),
       actions: [
         IconButton(
           onPressed: () {},
@@ -184,6 +247,105 @@ class _MainPageState extends State<MainPage> {
           width: 20,
         ),
       ],
+    );
+  }
+
+  void showGroupListModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: ColorSystem.white,
+      builder: (context) => Wrap(
+        children: [
+          Container(
+            decoration: const ShapeDecoration(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))),
+            ),
+            // height: 28 + groupInfos.length * 48 + 24,
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 28,
+                  child: Center(
+                    child: Container(
+                      width: 56,
+                      height: 4,
+                      decoration: ShapeDecoration(
+                        color: const Color(0xFFCAD3DB),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  child: Column(
+                    children: () {
+                      List<Widget> list = groupInfos
+                          .map<Widget>(
+                            (e) => ListTile(
+                              title: Row(
+                                children: [
+                                  Text(
+                                    e.groupName,
+                                    style: FontSystem.button14,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Image.asset(
+                                    "assets/images/users_icon.png",
+                                    width: 12,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    (sameGroupUsers.length + 1).toString(),
+                                    style: FontSystem.count,
+                                  ),
+                                ],
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  selectedValue = e.groupName;
+                                });
+                                int groupID = groupInfos.firstWhere((group) => group.groupName == selectedValue).groupID;
+                                _updateSameGroupContent(groupID);
+                                Navigator.pop(context);
+                              },
+                            ),
+                          )
+                          .toList();
+                      list.addAll([
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 48,
+                                child: ElevatedButton(
+                                  onPressed: () {},
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    backgroundColor: const Color(0xFF168AFF),
+                                    textStyle: FontSystem.button14,
+                                    foregroundColor: ColorSystem.white,
+                                  ),
+                                  child: const Text("+ 집 추가하기"),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ]);
+                      return list;
+                    }(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

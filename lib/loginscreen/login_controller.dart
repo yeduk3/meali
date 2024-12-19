@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_flutter_sdk_talk/kakao_flutter_sdk_talk.dart';
 import 'package:meali/mainscreen/data_loader.dart';
 import 'package:meali/common/user_data.dart';
+
+import 'package:http/http.dart' as http;
 
 class LoginController {
   /// [Singleton Pattern]
@@ -59,6 +64,29 @@ class LoginController {
     return hasToken;
   }
 
+  Future<void> _userRegistration(int id, String username, String thumbnailUrl) async {
+    Uri uri = Uri.http(
+      dotenv.env['SERVER_HOST']!,
+      'registration',
+    );
+
+    var body = jsonEncode({
+      "id": "$id",
+      "username": username,
+      "thumbnailUrl": thumbnailUrl,
+    });
+    var post = await http.post(
+      uri,
+      headers: {"Content-Type": "application/json"},
+      body: body,
+    );
+
+    if (post.statusCode == 200)
+      print("Success");
+    else
+      print("Fail: ${post.body}");
+  }
+
   Future<bool> _kakaoLoginMethod() async {
     bool isLoginSuccess = false;
     if (await isKakaoTalkInstalled()) {
@@ -113,5 +141,7 @@ class LoginController {
         thumbnailUrl: thumbnailUrl,
       ),
     );
+
+    await _userRegistration(me.id, username, thumbnailUrl);
   }
 }
