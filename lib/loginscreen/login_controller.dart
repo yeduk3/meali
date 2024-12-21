@@ -67,8 +67,9 @@ class LoginController {
   Future<void> _userRegistration(int id, String username, String thumbnailUrl) async {
     Uri uri = Uri.http(
       dotenv.env['SERVER_HOST']!,
-      'registration',
+      '/user/registration',
     );
+    if (kDebugMode) print(uri.toString());
 
     var body = jsonEncode({
       "id": "$id",
@@ -143,5 +144,34 @@ class LoginController {
     );
 
     await _userRegistration(me.id, username, thumbnailUrl);
+  }
+
+  void logout() async {
+    try {
+      await UserApi.instance.logout();
+    } catch (error) {
+      if (kDebugMode) print("로그아웃 실패, SDK에서 토큰 삭제 $error");
+    }
+  }
+
+  void deleteAccount() async {
+    try {
+      var userIdResponse = await UserApi.instance.unlink();
+
+      Uri uri = Uri.http(
+        dotenv.env['SERVER_HOST']!,
+        '/user/deleteaccount',
+        {"userId": "${userIdResponse.id}"},
+      );
+
+      var response = await http.delete(uri);
+      if (response.statusCode == 200) {
+        if (kDebugMode) print("계정 정보 제거 완료");
+      } else {
+        if (kDebugMode) print("계정 정보(${userIdResponse.id}) 제거 실패 ${response.body}");
+      }
+    } catch (error) {
+      if (kDebugMode) print("로그아웃 실패, SDK에서 토큰 삭제 $error");
+    }
   }
 }

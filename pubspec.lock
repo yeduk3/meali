@@ -208,6 +208,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.6"
+  kakao_flutter_sdk_share:
+    dependency: "direct main"
+    description:
+      name: kakao_flutter_sdk_share
+      sha256: f5502f51f2c9d2f69f29ab258e0379ad3eb4a588ce606640dd6a8105d96525a4
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.9.6"
   kakao_flutter_sdk_talk:
     dependency: "direct main"
     description:
