@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:meali/loginscreen/login_page.dart';
+import 'package:meali/mainscreen/main_page.dart';
 import 'package:meali/static/color_system.dart';
-import 'package:meali/static/font_system.dart';
 
 void main() async {
   await dotenv.load();
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -33,7 +34,31 @@ class MyApp extends StatelessWidget {
           surfaceTintColor: ColorSystem.white,
         ),
       ),
-      home: const LoginPage(),
+      routerConfig: _router,
+      // home: const LoginPage(),
     );
   }
 }
+
+/// This handles '/' and '/details'.
+final _router = GoRouter(
+  initialLocation: "/login",
+  routes: [
+    GoRoute(
+      path: '/login',
+      builder: (_, __) => const LoginPage(),
+    ),
+    GoRoute(
+      path: "/mainpage",
+      builder: (_, __) => const MainPage(),
+      routes: [
+        GoRoute(
+          path: '/userinvitation',
+          builder: (_, __) => Scaffold(
+            appBar: AppBar(title: const Text('INvitation Screen')),
+          ),
+        ),
+      ],
+    ),
+  ],
+);

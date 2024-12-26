@@ -14,8 +14,15 @@ if(envFile.exists()) {
     throw new FileNotFoundException("Could not file .env file at: ${envFile.path}")
 }
 
+// 서명 키
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('app/key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
-    namespace = "com.example.meali"
+    namespace = "com.meali"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -30,7 +37,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.meali"
+        applicationId = "com.meali"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -44,15 +51,35 @@ android {
             throw new FileNotFoundException("KAKAO_NATIVE_APP_KEY not found in .env file")
         }
         manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = kakaoKey
+        def serverHost = dotenv['SERVER_HOST']
+        if(serverHost == null) {
+            throw new FileNotFoundException("SERVER_HOST not found in .env file")
+        }
+        manifestPlaceholders["SERVER_HOST"] = serverHost
     }
 
-    buildTypes {
+    signingConfigs {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
         }
     }
+   
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
+
+    // buildTypes {
+    //     release {
+    //         // TODO: Add your own signing config for the release build.
+    //         // Signing with the debug keys for now, so `flutter run --release` works.
+    //         signingConfig = signingConfigs.debug
+    //     }
+    // }
 }
 
 flutter {

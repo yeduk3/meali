@@ -1,4 +1,4 @@
-package com.example.meali
+package com.meali
 
 import io.flutter.embedding.android.FlutterActivity
 
