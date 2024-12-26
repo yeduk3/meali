@@ -3,8 +3,8 @@ import 'package:meali/common/group_content.dart';
 import 'package:meali/common/group_info.dart';
 import 'package:meali/common/user_data.dart';
 import 'package:meali/mainscreen/blue_button.dart';
-import 'package:meali/mainscreen/bottomsheet/GroupInfoTileList.dart';
-import 'package:meali/mainscreen/bottomsheet/OptionMealiModalBottomSheetChild.dart';
+import 'package:meali/mainscreen/bottomsheet/groupinfo_tilelist.dart';
+import 'package:meali/mainscreen/bottomsheet/option_mealimodalbottomsheetchild.dart';
 import 'package:meali/mainscreen/component/expandable_button.dart';
 import 'package:meali/mainscreen/component/meali_modal_bottom_sheet.dart';
 import 'package:meali/mainscreen/component/memo/memo.dart';
@@ -137,7 +137,7 @@ class _MainPageState extends State<MainPage> {
           //           var gID = groupInfos.firstWhere((element) => element.groupName == selectedValue).groupID;
           //           await DataLoader().postData(gID, value);
           //           await _updateSameGroupContent(gID);
-          //           _scrollToHead(); // TODO: 작동 안 됨.
+          //           _scrollToHead(); // TODOooo: 작동 안 됨. -> 해결
           //         },
           //       )
           //     ],
@@ -155,7 +155,10 @@ class _MainPageState extends State<MainPage> {
                 var gID = groupInfos.firstWhere((element) => element.groupName == selectedValue).groupID;
                 await DataLoader().postData(gID, value);
                 await _updateSameGroupContent(gID);
-                _scrollToHead(); // TODO: 작동 안 됨.
+
+                WidgetsBinding.instance.addPostFrameCallback(
+                  (_) => _scrollToHead(),
+                );
 
                 _memoEditController.text = "";
               },
@@ -165,7 +168,7 @@ class _MainPageState extends State<MainPage> {
 
           /// [Memo List with ReorderableListView]
           Expanded(
-            child: Container(
+            child: SizedBox(
               child: ReorderableListView(
                 clipBehavior: Clip.antiAlias,
                 // top 12 for displaying shadow of memo
@@ -214,27 +217,6 @@ class _MainPageState extends State<MainPage> {
                   const SizedBox(height: 20),
 
                   /// [집 추가하기 버튼]
-                  // Row(
-                  //   children: [
-                  //     Expanded(
-                  //       child: SizedBox(
-                  //         height: 48,
-                  //         child: ElevatedButton(
-                  //           onPressed: () {
-                  //             openCreateGroupDialog();
-                  //           },
-                  //           style: ElevatedButton.styleFrom(
-                  //             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  //             backgroundColor: const Color(0xFF168AFF),
-                  //             textStyle: FontSystem.button14,
-                  //             foregroundColor: ColorSystem.white,
-                  //           ),
-                  //           child: const Text("+ 집 추가하기"),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
                   BlueButton(
                     onPressed: openCreateGroupDialog,
                     child: const Text("+ 집 추가하기"),
@@ -286,6 +268,7 @@ class _MainPageState extends State<MainPage> {
         title: GroupInfoListTile(
           sameGroupUsers: sameGroupUsers,
           groupName: e.groupName,
+          checked: selectedValue == e.groupName,
         ),
         onTap: () {
           setState(() {
