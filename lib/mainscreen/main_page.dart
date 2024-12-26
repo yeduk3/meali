@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:meali/common/group_content.dart';
 import 'package:meali/common/group_info.dart';
 import 'package:meali/common/user_data.dart';
+import 'package:meali/mainscreen/blue_button.dart';
+import 'package:meali/mainscreen/bottomsheet/GroupInfoTileList.dart';
+import 'package:meali/mainscreen/bottomsheet/OptionMealiModalBottomSheetChild.dart';
+import 'package:meali/mainscreen/component/expandable_button.dart';
 import 'package:meali/mainscreen/component/meali_modal_bottom_sheet.dart';
 import 'package:meali/mainscreen/component/memo/memo.dart';
 import 'package:meali/mainscreen/component/userlist/userlist_in_same_group.dart';
@@ -21,15 +25,19 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   String? selectedValue;
 
+  // Future<List<UserData>> sameGroupUsers;
+  // Future<List<GroupContent>> sameGroupContent;
+  // Future<List<GroupInfo>> groupInfos;
   List<UserData> sameGroupUsers = [];
   List<GroupContent> sameGroupContent = [];
   List<GroupInfo> groupInfos = [];
 
-  final ScrollController _controller = ScrollController();
+  final ScrollController _memoListController = ScrollController();
+  final TextEditingController _memoEditController = TextEditingController();
 
   void _scrollToHead() {
-    _controller.animateTo(
-      _controller.position.maxScrollExtent,
+    _memoListController.animateTo(
+      _memoListController.position.maxScrollExtent,
       duration: const Duration(seconds: 1),
       curve: Curves.bounceOut,
     );
@@ -78,6 +86,10 @@ class _MainPageState extends State<MainPage> {
 
     _checkMyUserData();
 
+    // groupInfos = DataLoader().getGroupList();
+    // sameGroupUsers = DataLoader().getSameGroupUserData(groupNameListReceiver[0].groupID);
+    // sameGroupContent = DataLoader().getGroupContent(groupNameListReceiver[0].groupID);
+
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
         List<GroupInfo> groupNameListReceiver = await DataLoader().getGroupList();
@@ -116,28 +128,51 @@ class _MainPageState extends State<MainPage> {
           ),
 
           /// [Contents]
+          // Padding(
+          //   padding: const EdgeInsets.only(bottom: 12, left: 20, right: 20, top: 20),
+          //   child: Column(
+          //     children: [
+          //       TextField(
+          //         onSubmitted: (value) async {
+          //           var gID = groupInfos.firstWhere((element) => element.groupName == selectedValue).groupID;
+          //           await DataLoader().postData(gID, value);
+          //           await _updateSameGroupContent(gID);
+          //           _scrollToHead(); // TODO: 작동 안 됨.
+          //         },
+          //       )
+          //     ],
+          //   ),
+          // ),
+          const SizedBox(height: 20),
           Padding(
-              padding: const EdgeInsets.only(bottom: 12, left: 20, right: 20, top: 20),
-              child: Column(
-                children: [
-                  TextField(
-                    onSubmitted: (value) async {
-                      var gID = groupInfos.firstWhere((element) => element.groupName == selectedValue).groupID;
-                      await DataLoader().postData(gID, value);
-                      await _updateSameGroupContent(gID);
-                      _scrollToHead();
-                    },
-                  )
-                ],
-              )),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: ExpandableButton(
+              controller: _memoEditController,
+              onSubmitted: () async {
+                var value = _memoEditController.text;
+                if (value == "") return;
+
+                var gID = groupInfos.firstWhere((element) => element.groupName == selectedValue).groupID;
+                await DataLoader().postData(gID, value);
+                await _updateSameGroupContent(gID);
+                _scrollToHead(); // TODO: 작동 안 됨.
+
+                _memoEditController.text = "";
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
 
           /// [Memo List with ReorderableListView]
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 12, top: 0),
+            child: Container(
               child: ReorderableListView(
-                scrollController: _controller,
+                clipBehavior: Clip.antiAlias,
+                // top 12 for displaying shadow of memo
+                padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 12, top: 12),
+                scrollController: _memoListController,
                 reverse: true,
+                shrinkWrap: true,
                 onReorder: (oldIndex, newIndex) {},
                 children: sameGroupContent
                     .map((e) => Memo(
@@ -150,7 +185,7 @@ class _MainPageState extends State<MainPage> {
                     .toList(),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -174,63 +209,36 @@ class _MainPageState extends State<MainPage> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             child: Column(
               children: () {
-                List<Widget> list = groupInfos
-                    .map<Widget>(
-                      (e) => ListTile(
-                        title: Row(
-                          children: [
-                            Text(
-                              e.groupName,
-                              style: FontSystem.button14,
-                            ),
-                            const SizedBox(width: 8),
-                            Image.asset(
-                              "assets/images/users_icon.png",
-                              width: 12,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              (sameGroupUsers.length + 1).toString(),
-                              style: FontSystem.count,
-                            ),
-                          ],
-                        ),
-                        onTap: () {
-                          setState(() {
-                            selectedValue = e.groupName;
-                          });
-                          int groupID = groupInfos.firstWhere((group) => group.groupName == selectedValue).groupID;
-                          _updateSameGroupContent(groupID);
-                          Navigator.pop(context);
-                        },
-                      ),
-                    )
-                    .toList();
+                List<Widget> list = groupInfos.map<Widget>(groupInfosMapper).toList();
                 list.addAll([
                   const SizedBox(height: 20),
 
                   /// [집 추가하기 버튼]
-                  Row(
-                    children: [
-                      Expanded(
-                        child: SizedBox(
-                          height: 48,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              openCreateGroupDialog();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              backgroundColor: const Color(0xFF168AFF),
-                              textStyle: FontSystem.button14,
-                              foregroundColor: ColorSystem.white,
-                            ),
-                            child: const Text("+ 집 추가하기"),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  // Row(
+                  //   children: [
+                  //     Expanded(
+                  //       child: SizedBox(
+                  //         height: 48,
+                  //         child: ElevatedButton(
+                  //           onPressed: () {
+                  //             openCreateGroupDialog();
+                  //           },
+                  //           style: ElevatedButton.styleFrom(
+                  //             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  //             backgroundColor: const Color(0xFF168AFF),
+                  //             textStyle: FontSystem.button14,
+                  //             foregroundColor: ColorSystem.white,
+                  //           ),
+                  //           child: const Text("+ 집 추가하기"),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  BlueButton(
+                    onPressed: openCreateGroupDialog,
+                    child: const Text("+ 집 추가하기"),
+                  )
                 ]);
                 return list;
               }(),
@@ -260,52 +268,7 @@ class _MainPageState extends State<MainPage> {
         IconButton(
           onPressed: showMealiModalBottomSheet(
             context: context,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    ListTile(
-                      title: const Text(
-                        "개인정보 설정",
-                        style: FontSystem.button14,
-                      ),
-                      // TODO
-                      onTap: () {},
-                    ),
-                    ListTile(
-                      title: const Text(
-                        "우리집 관리",
-                        style: FontSystem.button14,
-                      ),
-                      // TODO
-                      onTap: () {},
-                    ),
-                    const SizedBox(height: 20),
-                    ListTile(
-                      title: Text(
-                        "로그아웃",
-                        style: FontSystem.button14.copyWith(color: Colors.red),
-                      ),
-                      onTap: () {
-                        LoginController().logout();
-                        context.go("/login");
-                      },
-                    ),
-                    ListTile(
-                      title: Text(
-                        "계정 삭제",
-                        style: FontSystem.button14.copyWith(color: Colors.red),
-                      ),
-                      onTap: () {
-                        LoginController().deleteAccount();
-                        context.go('/login');
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            child: OptionMealiModalBottomSheetChild(context: context),
           ),
           icon: Image.asset(
             "assets/images/hamburger_icon.png",
@@ -318,6 +281,21 @@ class _MainPageState extends State<MainPage> {
       ],
     );
   }
+
+  Widget groupInfosMapper(e) => ListTile(
+        title: GroupInfoListTile(
+          sameGroupUsers: sameGroupUsers,
+          groupName: e.groupName,
+        ),
+        onTap: () {
+          setState(() {
+            selectedValue = e.groupName;
+          });
+          int groupID = groupInfos.firstWhere((group) => group.groupName == selectedValue).groupID;
+          _updateSameGroupContent(groupID);
+          Navigator.pop(context);
+        },
+      );
 
   final TextEditingController _groupNameInputController = TextEditingController();
 
@@ -343,9 +321,11 @@ class _MainPageState extends State<MainPage> {
             ElevatedButton(
               onPressed: () async {
                 // DataLoader().createNewGroupByName(_groupNameInputController.text);
-                DataLoader().createAndJoinNewGroupByName(_groupNameInputController.text);
-                context.pop();
-                context.pop();
+                await DataLoader().createAndJoinNewGroupByName(_groupNameInputController.text);
+                if (context.mounted) {
+                  context.pop();
+                  context.pop();
+                }
                 await dataRefresh();
               },
               child: const Text("생성하기"),
