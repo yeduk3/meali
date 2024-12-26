@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meali/common/user_data.dart';
-import 'package:meali/component/checkboxtile.dart';
-import 'package:meali/component/user_info.dart';
+import 'package:meali/mainscreen/component/memo/checkboxtile.dart';
+import 'package:meali/mainscreen/component/userlist/user_info.dart';
 import 'package:meali/static/color_system.dart';
 import 'package:meali/static/font_system.dart';
 
@@ -70,10 +70,7 @@ class Memo extends StatelessWidget {
           const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              UserInfo.horizontal(userdata: userdata),
-              Text(timeStamp.toString())
-            ],
+            children: [UserInfo.horizontal(userdata: userdata), Text(timeStamp.toString())],
           ),
         ],
       ),

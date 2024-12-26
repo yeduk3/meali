@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:meali/component/user_image.dart';
+import 'package:meali/mainscreen/component/userlist/user_image.dart';
 import 'package:meali/static/color_system.dart';
 import 'package:meali/static/font_system.dart';
 
@@ -36,8 +36,7 @@ class _CheckBoxTileState extends State<CheckBoxTile> {
                   splashRadius: 0,
                   side: const BorderSide(color: ColorSystem.gray07),
                   visualDensity: VisualDensity.compact,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                 ),
               ),
               const SizedBox(width: 8),

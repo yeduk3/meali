@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meali/common/user_data.dart';
-import 'package:meali/component/user_image.dart';
+import 'package:meali/mainscreen/component/userlist/user_image.dart';
 import 'package:meali/static/font_system.dart';
 
 class UserInfo extends StatelessWidget {

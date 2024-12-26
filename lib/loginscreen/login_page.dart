@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:meali/component/user_input.dart';
+import 'package:meali/loginscreen/component/user_input.dart';
 import 'package:meali/loginscreen/login_controller.dart';
 import 'package:meali/static/color_system.dart';
 import 'package:meali/static/font_system.dart';
