@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:meali/component/user_input.dart';
 import 'package:meali/loginscreen/login_controller.dart';
-import 'package:meali/mainscreen/main_page.dart';
 import 'package:meali/static/color_system.dart';
 import 'package:meali/static/font_system.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -29,12 +29,12 @@ class _LoginPageState extends State<LoginPage> {
       if (kDebugMode) print('Token exists');
       // if context is mounted
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const MainPage(),
-          ),
-        );
+        context.go("/mainpage");
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => const MainPage(),
+        //   ),
       } else {
         throw Exception('Context is not mounted');
       }
@@ -92,12 +92,13 @@ class _LoginPageState extends State<LoginPage> {
                   // mount: 비동기 작업 간, 위젯이 여전히 활성되어있는지 체크
                   if (isLoginSuccess && context.mounted) {
                     /// [Page Move]
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const MainPage(),
-                      ),
-                    );
+                    context.go("/mainpage");
+                    // Navigator.pushReplacement(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => const MainPage(),
+                    //   ),
+                    // );
                   }
                 },
               ),

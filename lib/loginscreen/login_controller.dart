@@ -82,10 +82,11 @@ class LoginController {
       body: body,
     );
 
-    if (post.statusCode == 200)
-      print("Success");
-    else
-      print("Fail: ${post.body}");
+    if (post.statusCode == 200) {
+      if (kDebugMode) print("Success");
+    } else {
+      if (kDebugMode) print("Fail: ${post.body}");
+    }
   }
 
   Future<bool> _kakaoLoginMethod() async {

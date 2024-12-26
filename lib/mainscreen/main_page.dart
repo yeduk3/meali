@@ -1,19 +1,15 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:meali/common/group_content.dart';
 import 'package:meali/common/group_info.dart';
 import 'package:meali/common/user_data.dart';
 import 'package:meali/component/meali_modal_bottom_sheet.dart';
 import 'package:meali/component/memo.dart';
-import 'package:meali/component/user_image.dart';
+import 'package:meali/component/userlist_in_same_group.dart';
 import 'package:meali/loginscreen/login_controller.dart';
-import 'package:meali/loginscreen/login_page.dart';
 import 'package:meali/mainscreen/data_loader.dart';
 import 'package:meali/static/color_system.dart';
 import 'package:meali/static/font_system.dart';
-import 'package:meali/component/customdropdown.dart' as customdropdown;
-import 'package:meali/component/user_info.dart';
+import 'package:go_router/go_router.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -47,9 +43,40 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
+  void _checkMyUserData() {
+    try {
+      DataLoader();
+    } catch (error) {
+      context.go("/login");
+    }
+    if (DataLoader().getMyUserData() == null) {
+      context.go("/login");
+    }
+  }
+
+  Future<void> dataRefresh() async {
+    List<GroupInfo> groupNameListReceiver = await DataLoader().getGroupList();
+    List<UserData> sameGroupUsersReceiver = [];
+    List<GroupContent> sameGroupContentReceiver = [];
+
+    if (groupNameListReceiver.isNotEmpty) {
+      sameGroupUsersReceiver = await DataLoader().getSameGroupUserData(groupNameListReceiver[0].groupID);
+      sameGroupContentReceiver = await DataLoader().getGroupContent(groupNameListReceiver[0].groupID);
+    }
+
+    setState(() {
+      groupInfos = groupNameListReceiver;
+      sameGroupUsers = sameGroupUsersReceiver;
+      sameGroupContent = sameGroupContentReceiver;
+      selectedValue = groupInfos.firstOrNull?.groupName;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+
+    _checkMyUserData();
 
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
@@ -83,47 +110,14 @@ class _MainPageState extends State<MainPage> {
       body: Column(
         children: [
           /// [User List in Group]
-          Container(
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(width: 1, color: ColorSystem.gray09))),
-            height: 108,
-            padding: const EdgeInsets.only(left: 20, top: 20, right: 20, bottom: 11),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                UserInfo.vertical(
-                  style: FontSystem.nameme12,
-                  isNetwork: true,
-                  userdata: DataLoader().myUserData,
-                ),
-                Row(
-                  children: sameGroupUsers
-                      .map(
-                        (e) => Row(
-                          children: [
-                            const SizedBox(
-                              width: 15,
-                            ),
-                            UserInfo.vertical(
-                              userdata: e,
-                              style: FontSystem.nameother12,
-                            )
-                          ],
-                        ),
-                      )
-                      .toList(),
-                ),
-
-                /// [User Add Button] Last space is 12
-                const SizedBox(
-                  width: 12,
-                ),
-                const UserAddButton(),
-              ],
-            ),
+          UserListInSameGroup(
+            sameGroupUsers: sameGroupUsers,
+            myData: DataLoader().getMyUserData()!,
           ),
+
+          /// [Contents]
           Padding(
               padding: const EdgeInsets.only(bottom: 12, left: 20, right: 20, top: 20),
-              // child: ExpandableButton(),
               child: Column(
                 children: [
                   TextField(
@@ -149,7 +143,7 @@ class _MainPageState extends State<MainPage> {
                     .map((e) => Memo(
                           key: ValueKey(e.contentID),
                           title: e.content,
-                          userdata: DataLoader().myUserData,
+                          userdata: DataLoader().getMyUserData()!,
                           timeStamp: DateTime.now(),
                           content: true,
                         ))
@@ -174,7 +168,7 @@ class _MainPageState extends State<MainPage> {
           shape: const LinearBorder(),
           padding: const EdgeInsets.symmetric(horizontal: 20),
         ),
-        onPressed: /*showGroupListModal*/ showMealiModalBottomSheet(
+        onPressed: showMealiModalBottomSheet(
           context: context,
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -214,13 +208,17 @@ class _MainPageState extends State<MainPage> {
                     .toList();
                 list.addAll([
                   const SizedBox(height: 20),
+
+                  /// [집 추가하기 버튼]
                   Row(
                     children: [
                       Expanded(
                         child: SizedBox(
                           height: 48,
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              openCreateGroupDialog();
+                            },
                             style: ElevatedButton.styleFrom(
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               backgroundColor: const Color(0xFF168AFF),
@@ -258,41 +256,6 @@ class _MainPageState extends State<MainPage> {
           ],
         ),
       ),
-      // customdropdown.DropdownButton<String>(
-      //   value: selectedValue,
-      //   padding: const EdgeInsets.symmetric(horizontal: 20),
-      //   elevation: 0,
-      //   isExpanded: true,
-      //   style: FontSystem.title,
-      //   underline: const SizedBox(),
-      //   dropdownColor: ColorSystem.white,
-      //   icon: const SizedBox.shrink(),
-      //   selectedItemBuilder: (context) => _appBarSelectedItemBuilder(
-      //     context,
-      //     groupInfos.map((e) => e.groupName).toList(),
-      //   ), // when selected, auto callback
-      //   items: _appBarDropdownMenuItemBuilder(
-      //     groupInfos.map((e) => e.groupName).toList(),
-      //   ),
-      //   onChanged: (String? value) async {
-      //     int i = 0;
-      //     for (; i < groupInfos.length; ++i) {
-      //       if (groupInfos[i].groupName == value) break;
-      //     }
-      //     List<UserData> sameGroupUsersReceiver = [];
-      //     List<GroupContent> sameGroupContentReceiver = [];
-      //     if (groupInfos[i].groupName != selectedValue) {
-      //       sameGroupUsersReceiver = await DataLoader().getSameGroupUserData(groupInfos[i].groupID);
-      //       sameGroupContentReceiver = await DataLoader().getGroupContent(groupInfos[i].groupID);
-      //     }
-
-      //     setState(() {
-      //       selectedValue = value!;
-      //       sameGroupUsers = sameGroupUsersReceiver;
-      //       sameGroupContent = sameGroupContentReceiver;
-      //     });
-      //   },
-      // ),
       actions: [
         IconButton(
           onPressed: showMealiModalBottomSheet(
@@ -326,12 +289,7 @@ class _MainPageState extends State<MainPage> {
                       ),
                       onTap: () {
                         LoginController().logout();
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginPage(),
-                          ),
-                        );
+                        context.go("/login");
                       },
                     ),
                     ListTile(
@@ -341,12 +299,7 @@ class _MainPageState extends State<MainPage> {
                       ),
                       onTap: () {
                         LoginController().deleteAccount();
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginPage(),
-                          ),
-                        );
+                        context.go('/login');
                       },
                     ),
                   ],
@@ -366,163 +319,38 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  void showGroupListModal() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: ColorSystem.white,
-      builder: (context) => Wrap(
-        children: [
-          Container(
-            decoration: const ShapeDecoration(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))),
-            ),
-            // height: 28 + groupInfos.length * 48 + 24,
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 28,
-                  child: Center(
-                    child: Container(
-                      width: 56,
-                      height: 4,
-                      decoration: ShapeDecoration(
-                        color: const Color(0xFFCAD3DB),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: () {
-                        List<Widget> list = groupInfos
-                            .map<Widget>(
-                              (e) => ListTile(
-                                title: Row(
-                                  children: [
-                                    Text(
-                                      e.groupName,
-                                      style: FontSystem.button14,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Image.asset(
-                                      "assets/images/users_icon.png",
-                                      width: 12,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      (sameGroupUsers.length + 1).toString(),
-                                      style: FontSystem.count,
-                                    ),
-                                  ],
-                                ),
-                                onTap: () {
-                                  setState(() {
-                                    selectedValue = e.groupName;
-                                  });
-                                  int groupID = groupInfos.firstWhere((group) => group.groupName == selectedValue).groupID;
-                                  _updateSameGroupContent(groupID);
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            )
-                            .toList();
-                        list.addAll([
-                          const SizedBox(height: 20),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: SizedBox(
-                                  height: 48,
-                                  child: ElevatedButton(
-                                    onPressed: () {},
-                                    style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                      backgroundColor: const Color(0xFF168AFF),
-                                      textStyle: FontSystem.button14,
-                                      foregroundColor: ColorSystem.white,
-                                    ),
-                                    child: const Text("+ 집 추가하기"),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ]);
-                        return list;
-                      }(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  final TextEditingController _groupNameInputController = TextEditingController();
 
-/*
-  List<customdropdown.DropdownMenuItem<String>> _appBarDropdownMenuItemBuilder(List<String> groups) {
-    return groups.map<customdropdown.DropdownMenuItem<String>>(
-      (groupName) {
-        return customdropdown.DropdownMenuItem<String>(
-          value: groupName,
-          child: Text(
-            groupName,
-            style: const TextStyle(color: ColorSystem.black),
+  void openCreateGroupDialog() => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: ColorSystem.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: const Text(
+            "집 추가하기",
+            style: FontSystem.memoTitle,
           ),
-        );
-      },
-    ).toList();
-  }
-
-  List<Widget> _appBarSelectedItemBuilder(context, List<String> groups) {
-    return groups.map<Widget>(
-      (e) {
-        return Row(
-          children: [
-            Text(
-              e,
-              style: const TextStyle(color: ColorSystem.black),
+          content: TextField(
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: "집 이름을 작성해주세요",
+              hintStyle: FontSystem.content14,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            const SizedBox(width: 4),
-            Image.asset(
-              "assets/images/arrow_drop_down_icon.png",
-              width: 18,
+            controller: _groupNameInputController,
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () async {
+                // DataLoader().createNewGroupByName(_groupNameInputController.text);
+                DataLoader().createAndJoinNewGroupByName(_groupNameInputController.text);
+                context.pop();
+                context.pop();
+                await dataRefresh();
+              },
+              child: const Text("생성하기"),
             ),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 4,
-              ),
-              decoration: const BoxDecoration(color: ColorSystem.gray09, borderRadius: BorderRadius.all(Radius.circular(6))),
-              child: Row(
-                children: [
-                  Image.asset(
-                    "assets/images/users_icon.png",
-                    width: 12,
-                  ),
-                  const SizedBox(
-                    width: 4,
-                  ),
-                  Text(
-                    groupInfos.length.toString(),
-                    style: FontSystem.count,
-                  ),
-                ],
-              ),
-            )
           ],
-        );
-      },
-    ).toList();
-  }
-  */
+        ),
+      );
 }

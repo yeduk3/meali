@@ -7,7 +7,6 @@ class ExpandableButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return SizedBox(
       height: 48,
       child: Row(
