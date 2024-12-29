@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:meali/common/user_data.dart';
 import 'package:meali/mainscreen/component/memo/checkboxtile.dart';
-import 'package:meali/mainscreen/component/memo/memo_container.dart';
 import 'package:meali/mainscreen/component/userlist/user_info.dart';
+import 'package:meali/mainscreen/meali_content_parser.dart';
 import 'package:meali/static/color_system.dart';
 import 'package:meali/static/font_system.dart';
 
 class Memo extends StatelessWidget {
   /// title of memo
-  final String title;
+  final String source;
+  late final Widget title;
+  late List<Widget>? content;
 
   /// user data(name, thumbnailUrl)
   final UserData userdata;
@@ -16,104 +18,112 @@ class Memo extends StatelessWidget {
   /// edit time
   final DateTime timeStamp;
 
-  /// [Test] content exist
-  final bool content;
+  MemoDragOptions? dragOptions;
 
-  const Memo({
+  Memo({
     super.key,
-    required this.title,
+    required this.source,
     required this.userdata,
     required this.timeStamp,
-    required this.content,
-  });
+    this.dragOptions,
+  }) {
+    var (title, content) = MealiContentParser.stringToMemo(source);
+    this.title = title;
+    this.content = content;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MemoContainer(
-      child: Column(
-        children: [
-          /// [Header]
-          SizedBox(
-            width: double.infinity,
-            child: Text(
-              title,
-              style: FontSystem.memoTitle,
-              overflow: TextOverflow.fade,
-              maxLines: 1,
-              softWrap: false,
-            ),
-          ),
+    var child = Column(
+      children: [
+        /// [Header]
+        title,
 
-          /// [Content]
-          if (content)
-            const Column(
-              children: [
-                SizedBox(
-                  height: 12,
-                ),
-                CheckBoxTile(),
-                CheckBoxTile(),
-                CheckBoxTile(),
-              ],
-            )
-          else
-            const SizedBox.shrink(),
+        /// [Content]
+        content != null
+            ? Column(
+                children: () {
+                  content!.insert(0, const SizedBox(height: 12));
+                  return content!;
+                }(),
+              )
+            : const SizedBox.shrink(),
 
-          /// [Bottom]
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [UserInfo.horizontal(userdata: userdata), Text(timeStamp.toString())],
-          ),
-        ],
-      ),
+        /// [Bottom]
+        const SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [UserInfo.horizontal(userdata: userdata), Text(timeStamp.toString())],
+        ),
+      ],
     );
-    // Container(
-    //   width: double.infinity,
-    //   padding: const EdgeInsets.all(20),
-    //   margin: const EdgeInsets.only(bottom: 12),
-    //   decoration: BoxDecoration(
-    //     color: ColorSystem.white,
-    //     borderRadius: BorderRadius.circular(12),
-    //     boxShadow: ColorSystem.shadow,
-    //   ),
-    //   child: Column(
-    //     children: [
-    //       /// [Header]
-    //       SizedBox(
-    //         width: double.infinity,
-    //         child: Text(
-    //           title,
-    //           style: FontSystem.memoTitle,
-    //           overflow: TextOverflow.fade,
-    //           maxLines: 1,
-    //           softWrap: false,
-    //         ),
-    //       ),
+    return dragOptions != null
+        ? DraggableMemoContainer(
+            dragOptions: dragOptions!,
+            child: child,
+          )
+        : MemoContainer(child: child);
+  }
+}
 
-    //       /// [Content]
-    //       if (content)
-    //         const Column(
-    //           children: [
-    //             SizedBox(
-    //               height: 12,
-    //             ),
-    //             CheckBoxTile(),
-    //             CheckBoxTile(),
-    //             CheckBoxTile(),
-    //           ],
-    //         )
-    //       else
-    //         const SizedBox.shrink(),
+class DraggableMemoContainer extends StatelessWidget {
+  const DraggableMemoContainer({
+    super.key,
+    required this.child,
+    required this.dragOptions,
+  });
 
-    //       /// [Bottom]
-    //       const SizedBox(height: 20),
-    //       Row(
-    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //         children: [UserInfo.horizontal(userdata: userdata), Text(timeStamp.toString())],
-    //       ),
-    //     ],
-    //   ),
-    // );
+  final Widget child;
+  final MemoDragOptions dragOptions;
+
+  @override
+  Widget build(BuildContext context) {
+    return LongPressDraggable(
+      data: dragOptions.data,
+      dragAnchorStrategy: (draggable, context, position) => Offset((MediaQuery.of(context).size.width - 40) / 2, 0),
+      onDragStarted: dragOptions.onDragStarted,
+      onDragEnd: dragOptions.onDragEnd,
+      feedback: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 40),
+        child: MemoContainer(child: child),
+      ),
+      child: MemoContainer(child: child),
+    );
+  }
+}
+
+class MemoDragOptions<T> {
+  MemoDragOptions({
+    required this.onDragStarted,
+    required this.onDragEnd,
+    required this.data,
+  });
+
+  final void Function() onDragStarted;
+  final void Function(DraggableDetails details) onDragEnd;
+  final T data;
+}
+
+class MemoContainer extends StatelessWidget {
+  const MemoContainer({
+    super.key,
+    required this.child,
+  });
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: ColorSystem.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: ColorSystem.shadow,
+      ),
+      child: child,
+    );
   }
 }

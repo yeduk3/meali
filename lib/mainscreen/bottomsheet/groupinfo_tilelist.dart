@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:meali/common/user_data.dart';
+import 'package:meali/mainscreen/component/group_usercount_badge.dart';
 import 'package:meali/static/font_system.dart';
 
 class GroupInfoListTile extends StatelessWidget {
   const GroupInfoListTile({
     super.key,
-    required this.sameGroupUsers,
+    required this.sameGroupUsersCount,
     required this.groupName,
     required this.checked,
   });
 
-  final List<UserData> sameGroupUsers;
+  final int sameGroupUsersCount;
   final String groupName;
   final bool checked;
 
@@ -26,15 +27,7 @@ class GroupInfoListTile extends StatelessWidget {
               style: FontSystem.button14,
             ),
             const SizedBox(width: 8),
-            Image.asset(
-              "assets/images/users_icon.png",
-              width: 12,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              (sameGroupUsers.length + 1).toString(),
-              style: FontSystem.count,
-            ),
+            GroupUserCountBadge(sameGroupUsersCount: sameGroupUsersCount)
           ],
         ),
         checked

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:meali/mainscreen/blue_button.dart';
-import 'package:meali/mainscreen/component/memo/memo_container.dart';
+import 'package:meali/mainscreen/component/memo/memo.dart';
 import 'package:meali/static/color_system.dart';
 import 'package:meali/static/font_system.dart';
 
 class ExpandableButton extends StatefulWidget {
-  ExpandableButton({
+  const ExpandableButton({
     super.key,
     this.onSubmitted,
     this.controller,
   });
-  TextEditingController? controller;
-  void Function()? onSubmitted;
+  final TextEditingController? controller;
+  final void Function()? onSubmitted;
 
   @override
   State<ExpandableButton> createState() => _ExpandableButtonState();

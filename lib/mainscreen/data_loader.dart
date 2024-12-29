@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:meali/common/group_content.dart';
 import 'package:meali/common/group_info.dart';
+import 'package:meali/common/simple_uri_builder.dart';
 import 'package:meali/common/user_data.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
@@ -34,16 +35,15 @@ class DataLoader {
   Future<List<UserData>> getSameGroupUserData(int groupID) async {
     // if (kDebugMode) print("Get Same Group User Data");
 
-    Uri url = Uri.http(
-      dotenv.env['SERVER_HOST']!,
-      '/samegroupusers',
+    Uri uri = simpleUriBuilder(
+      dotenv.env['SAMEGROUP_USERDATA']!,
       {
         'userID': '${_myUserData?.userId}',
         'groupID': '$groupID',
       },
     );
 
-    http.Response response = await http.get(url);
+    http.Response response = await http.get(uri);
     if (response.statusCode == 200) {
       var resjson = convert.jsonDecode(response.body) as Map<String, dynamic>;
 
@@ -66,16 +66,15 @@ class DataLoader {
 
   Future<List<GroupContent>> getGroupContent(int groupID) async {
     // if (kDebugMode) print("Get Group Data");
-    Uri url = Uri.http(
-      dotenv.env['SERVER_HOST']!,
-      '/samegroupcontent',
+    Uri uri = simpleUriBuilder(
+      dotenv.env['SAMEGROUP_CONTENT']!,
       {
         'userID': '${_myUserData?.userId}',
         'groupID': '$groupID',
       },
     );
 
-    http.Response response = await http.get(url);
+    http.Response response = await http.get(uri);
     if (response.statusCode == 200) {
       var resjson = convert.jsonDecode(response.body) as Map<String, dynamic>;
 
@@ -98,15 +97,14 @@ class DataLoader {
 
   Future<List<GroupInfo>> getGroupList() async {
     // if (kDebugMode) print("Get Group Name List for App Bar");
-    Uri url = Uri.http(
-      dotenv.env['SERVER_HOST']!,
-      '/groupinfolist',
+    Uri uri = simpleUriBuilder(
+      dotenv.env['GROUPDATA']!,
       {
         'userID': '${_myUserData?.userId}',
       },
     );
 
-    http.Response response = await http.get(url);
+    http.Response response = await http.get(uri);
     if (response.statusCode == 200) {
       var resjson = convert.jsonDecode(response.body) as Map<String, dynamic>;
 
@@ -127,11 +125,8 @@ class DataLoader {
     }
   }
 
-  Future<void> postData(int groupID, String content) async {
-    Uri uri = Uri.http(
-      dotenv.env['SERVER_HOST']!,
-      'uploadcontent',
-    );
+  Future<void> postContent(int groupID, String content) async {
+    Uri uri = simpleUriBuilder(dotenv.env['UPLOAD_CONTENT']!);
 
     var body = convert.jsonEncode({
       'groupID': "$groupID",
@@ -149,24 +144,34 @@ class DataLoader {
     }
   }
 
-  Future<bool> createAndJoinNewGroupByName(String groupName) async {
+  Future<int> deleteContent(int contentId) async {
+    Uri uri = simpleUriBuilder(dotenv.env['DELETE_CONTENT']!, {"contentId": "$contentId"});
+
+    var response = await http.delete(uri);
+
+    if (kDebugMode) print("콘텐츠 제거 요청 결과: ${response.statusCode} ${response.body}");
+
+    return response.statusCode;
+  }
+
+  Future<int> createAndJoinNewGroupByName(String groupName) async {
     int groupId = await createNewGroupByName(groupName);
     if (groupId < 0) {
       if (kDebugMode) print("그룹 생성 실패");
-      return false; // 가입 실패.
+      return -1;
     }
     var responseStatusCode = await joinGroup(groupId);
     if (responseStatusCode == 200) {
       if (kDebugMode) print("그룹 가입 성공");
-      return true;
+      return groupId;
     } else {
       if (kDebugMode) print("그룹 가입 실패");
-      return false;
+      return -2;
     }
   }
 
   Future<int> createNewGroupByName(String groupName) async {
-    Uri uri = simpleUriBuilder('creategroup');
+    Uri uri = simpleUriBuilder(dotenv.env["CREATE_GROUP"]!);
 
     http.Response response = await http.post(uri, body: groupName);
 
@@ -181,7 +186,7 @@ class DataLoader {
   }
 
   Future<int> joinGroup(int groupId) async {
-    Uri uri = simpleUriBuilder('joingroup');
+    Uri uri = simpleUriBuilder(dotenv.env["JOIN_GROUP"]!);
 
     var body = convert.jsonEncode({"userId": "${getMyUserData()?.userId}", "groupId": "$groupId"});
 
@@ -196,10 +201,13 @@ class DataLoader {
     return response.statusCode;
   }
 
-  Uri simpleUriBuilder(String path) {
-    return Uri.http(
-      dotenv.env['SERVER_HOST']!,
-      path,
-    );
+  Future<int> deleteGroupById(int groupId) async {
+    Uri uri = simpleUriBuilder(dotenv.env["DELETE_GROUP"]!, {"groupId": "$groupId"});
+
+    http.Response response = await http.delete(uri);
+
+    if (kDebugMode) print("그룹 삭제 요청 결과: ${response.statusCode} ${response.body}");
+
+    return response.statusCode;
   }
 }

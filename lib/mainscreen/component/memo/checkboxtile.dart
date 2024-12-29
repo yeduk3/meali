@@ -4,7 +4,14 @@ import 'package:meali/static/color_system.dart';
 import 'package:meali/static/font_system.dart';
 
 class CheckBoxTile extends StatefulWidget {
-  const CheckBoxTile({super.key});
+  const CheckBoxTile({
+    super.key,
+    required this.content,
+    required this.checked,
+  });
+
+  final String content;
+  final bool checked;
 
   @override
   State<CheckBoxTile> createState() => _CheckBoxTileState();
@@ -12,6 +19,12 @@ class CheckBoxTile extends StatefulWidget {
 
 class _CheckBoxTileState extends State<CheckBoxTile> {
   bool _isChecked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isChecked = widget.checked;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +53,8 @@ class _CheckBoxTileState extends State<CheckBoxTile> {
                 ),
               ),
               const SizedBox(width: 8),
-              const Text(
-                "Test",
+              Text(
+                widget.content,
                 style: FontSystem.content14,
               ),
             ],

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_flutter_sdk_talk/kakao_flutter_sdk_talk.dart';
+import 'package:meali/common/simple_uri_builder.dart';
 import 'package:meali/mainscreen/data_loader.dart';
 import 'package:meali/common/user_data.dart';
 
@@ -65,11 +66,9 @@ class LoginController {
   }
 
   Future<void> _userRegistration(int id, String username, String thumbnailUrl) async {
-    Uri uri = Uri.http(
-      dotenv.env['SERVER_HOST']!,
-      '/user/registration',
-    );
-    if (kDebugMode) print(uri.toString());
+    Uri uri = simpleUriBuilder(dotenv.env['USER_REGISTRATION']!);
+
+    // if (kDebugMode) print(uri.toString());
 
     var body = jsonEncode({
       "id": "$id",
@@ -159,9 +158,8 @@ class LoginController {
     try {
       var userIdResponse = await UserApi.instance.unlink();
 
-      Uri uri = Uri.http(
-        dotenv.env['SERVER_HOST']!,
-        '/user/deleteaccount',
+      Uri uri = simpleUriBuilder(
+        dotenv.env['USER_DELETEACCOUNT']!,
         {"userId": "${userIdResponse.id}"},
       );
 
