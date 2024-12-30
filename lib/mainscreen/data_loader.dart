@@ -210,4 +210,32 @@ class DataLoader {
 
     return response.statusCode;
   }
+
+  Future<GroupInfo> findGroupById(int groupId) async {
+    Uri uri = simpleUriBuilder(dotenv.env["FIND_GROUP"]!, {"groupId": "$groupId"});
+
+    var response = await http.get(uri);
+
+    if (kDebugMode) print("그룹 탐색 결과: ${response.statusCode} ${response.body}");
+
+    var json = convert.jsonDecode(response.body);
+    var gId = json["id"];
+    var gn = json["groupName"];
+    GroupInfo ret = GroupInfo(groupID: gId, groupName: gn);
+
+    return ret;
+  }
+
+  Future<int> leaveGroupBy(int groupId) async {
+    Uri uri = simpleUriBuilder(
+      dotenv.env["LEAVE_GROUP"]!,
+      {"userId": "${_myUserData?.userId}", "groupId": "$groupId"},
+    );
+
+    var response = await http.delete(uri);
+
+    if (kDebugMode) print("그룹 나가기 결과: ${response.statusCode} ${response.body}");
+
+    return int.parse(response.body);
+  }
 }

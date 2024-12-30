@@ -83,8 +83,14 @@ class DraggableMemoContainer extends StatelessWidget {
       dragAnchorStrategy: (draggable, context, position) => Offset((MediaQuery.of(context).size.width - 40) / 2, 0),
       onDragStarted: dragOptions.onDragStarted,
       onDragEnd: dragOptions.onDragEnd,
-      feedback: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 40),
+      feedback: Material(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 40),
+          child: Opacity(opacity: 0.7, child: MemoContainer(child: child)),
+        ),
+      ),
+      childWhenDragging: Opacity(
+        opacity: 0.5,
         child: MemoContainer(child: child),
       ),
       child: MemoContainer(child: child),
@@ -117,7 +123,7 @@ class MemoContainer extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
-      margin: const EdgeInsets.only(bottom: 12),
+      // margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: ColorSystem.white,
         borderRadius: BorderRadius.circular(12),

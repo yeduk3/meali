@@ -2,16 +2,16 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:meali/common/group_content.dart';
 import 'package:meali/common/group_info.dart';
 import 'package:meali/common/user_data.dart';
-import 'package:meali/mainscreen/blue_button.dart';
+import 'package:meali/common/component/blue_button.dart';
 import 'package:meali/mainscreen/bottomsheet/groupinfo_tilelist.dart';
 import 'package:meali/mainscreen/bottomsheet/option_mealimodalbottomsheetchild.dart';
-import 'package:meali/mainscreen/component/expandable_button.dart';
-import 'package:meali/mainscreen/component/group_usercount_badge.dart';
-import 'package:meali/mainscreen/component/meali_modal_bottom_sheet.dart';
+import 'package:meali/mainscreen/component/memo/expandable_button.dart';
+import 'package:meali/mainscreen/component/appbar/group_usercount_badge.dart';
+import 'package:meali/mainscreen/bottomsheet/meali_modal_bottom_sheet.dart';
 import 'package:meali/mainscreen/component/memo/memo.dart';
 import 'package:meali/mainscreen/component/userlist/userlist_in_same_group.dart';
 import 'package:meali/mainscreen/data_loader.dart';
@@ -19,78 +19,83 @@ import 'package:meali/static/color_system.dart';
 import 'package:meali/static/font_system.dart';
 import 'package:go_router/go_router.dart';
 
-/// key: int groupId
-///
-/// value: List\<int\> contentOrder
-typedef ContentOrderMap = Map<int, List<int>>;
+// /// key: int groupId
+// ///
+// /// value: List\<int\> contentOrder
+// typedef ContentOrderMap = Map<int, List<int>>;
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+  MainPage({
+    super.key,
+    this.startgroup,
+  });
+
+  GroupInfo? startgroup;
 
   @override
   State<MainPage> createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
-  final _storage = const FlutterSecureStorage();
+  // final _storage = const FlutterSecureStorage();
 
-  ContentOrderMap _contentOrderMap = {};
+  // ContentOrderMap _contentOrderMap = {};
 
-  IOSOptions _getIOSOptions() => const IOSOptions();
+  // IOSOptions _getIOSOptions() => const IOSOptions();
 
-  AndroidOptions _getAndroidOptions() => const AndroidOptions();
+  // AndroidOptions _getAndroidOptions() => const AndroidOptions();
 
-  Future<Map<int, List<int>>> _readContentOrderAll() async {
-    try {
-      final all = await _storage.readAll(
-        iOptions: _getIOSOptions(),
-        aOptions: _getAndroidOptions(),
-      );
-      final contentOrder = all["ContentOrder"]!;
-      setState(() {
-        _contentOrderMap = jsonDecode(contentOrder).cast<int, List<int>>();
-      });
-      if (kDebugMode) print("오더맵: ${_contentOrderMap.toString()}");
-      return _contentOrderMap;
-    } catch (exception) {
-      if (kDebugMode) print("ContentOrder 읽기 실패 $exception");
-      return {};
-    }
-  }
+  // Future<Map<int, List<int>>> _readContentOrderAll() async {
+  //   try {
+  //     final all = await _storage.readAll(
+  //       iOptions: _getIOSOptions(),
+  //       aOptions: _getAndroidOptions(),
+  //     );
+  //     final contentOrder = all["ContentOrder"]!;
+  //     setState(() {
+  //       _contentOrderMap = jsonDecode(contentOrder).cast<int, List<int>>();
+  //     });
+  //     if (kDebugMode) print("오더맵: ${_contentOrderMap.toString()}");
+  //     return _contentOrderMap;
+  //   } catch (exception) {
+  //     if (kDebugMode) print("ContentOrder 읽기 실패 $exception");
+  //     return {};
+  //   }
+  // }
 
-  /// Put all contents in a group
-  ///
-  /// no groupid -> create.
-  ///
-  /// exist groupid -> overwirte. If join is true, not overwrite but insert into beginning
-  Future<void> _writeContentOrderOf(int groupId, List<int> contentIds, [bool? join]) async {
-    setState(() {
-      if (_contentOrderMap.containsKey(groupId)) {
-        if (join ?? true) {
-          // join is null or false
-          _contentOrderMap[groupId] = contentIds;
-        } else {
-          // join is true
-          _contentOrderMap[groupId]!.insertAll(0, contentIds);
-        }
-      } else {
-        _contentOrderMap.addAll({groupId: contentIds});
-      }
-    });
-    await _storage.write(key: "ContentOrder", value: _contentOrderMap.toString());
-  }
+  // /// Put all contents in a group
+  // ///
+  // /// no groupid -> create.
+  // ///
+  // /// exist groupid -> overwirte. If join is true, not overwrite but insert into beginning
+  // Future<void> _writeContentOrderOf(int groupId, List<int> contentIds, [bool? join]) async {
+  //   setState(() {
+  //     if (_contentOrderMap.containsKey(groupId)) {
+  //       if (join ?? true) {
+  //         // join is null or false
+  //         _contentOrderMap[groupId] = contentIds;
+  //       } else {
+  //         // join is true
+  //         _contentOrderMap[groupId]!.insertAll(0, contentIds);
+  //       }
+  //     } else {
+  //       _contentOrderMap.addAll({groupId: contentIds});
+  //     }
+  //   });
+  //   await _storage.write(key: "ContentOrder", value: _contentOrderMap.toString());
+  // }
 
-  Future<void> _swapContentOrderAll(int groupId, int oldIndex, int newIndex) async {
-    try {
-      int? temp = _contentOrderMap[groupId]?[oldIndex];
-      _contentOrderMap[groupId]![oldIndex] = _contentOrderMap[groupId]![newIndex];
-      _contentOrderMap[groupId]![newIndex] = temp!;
+  // Future<void> _swapContentOrderAll(int groupId, int oldIndex, int newIndex) async {
+  //   try {
+  //     int? temp = _contentOrderMap[groupId]?[oldIndex];
+  //     _contentOrderMap[groupId]![oldIndex] = _contentOrderMap[groupId]![newIndex];
+  //     _contentOrderMap[groupId]![newIndex] = temp!;
 
-      await _writeContentOrderOf(groupId, _contentOrderMap[groupId]!);
-    } catch (exception) {
-      if (kDebugMode) print("리스트 스왑 실패 그룹 $groupId, tried to swap $oldIndex and $newIndex");
-    }
-  }
+  //     await _writeContentOrderOf(groupId, _contentOrderMap[groupId]!);
+  //   } catch (exception) {
+  //     if (kDebugMode) print("리스트 스왑 실패 그룹 $groupId, tried to swap $oldIndex and $newIndex");
+  //   }
+  // }
 
   GroupInfo? selectedValue;
 
@@ -130,7 +135,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> _dataRefresh([int? currentGroupId]) async {
-    _readContentOrderAll();
+    // _readContentOrderAll();
     List<GroupInfo> groupInfosReceiver = await DataLoader().getGroupList();
     setState(() {
       groupInfos = groupInfosReceiver;
@@ -161,12 +166,14 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
 
+    setState(() => selectedValue = widget.startgroup);
+
     _checkMyUserDataExist();
 
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
-        await _writeContentOrderOf(1, [123, 1232, 2222]);
-        await _readContentOrderAll();
+        // await _writeContentOrderOf(1, [123, 1232, 2222]);
+        // await _readContentOrderAll();
         await _dataRefresh();
       },
     );
@@ -186,6 +193,7 @@ class _MainPageState extends State<MainPage> {
           UserListInSameGroup(
             sameGroupUsers: sameGroupUsers,
             myData: DataLoader().getMyUserData()!,
+            groupId: selectedValue?.groupID ?? -1,
           ),
 
           /// [Contents]
@@ -237,31 +245,30 @@ class _MainPageState extends State<MainPage> {
                     },
                   ),
           ),
-          const SizedBox(height: 12),
 
           /// [Memo List with ReorderableListView]
           Expanded(
             child: Stack(
               children: [
-                ListView(
-                  padding: const EdgeInsets.only(left: 20.0, right: 20, top: 12),
-                  // clipBehavior: Clip.antiAlias,
+                ListView.separated(
+                  padding: const EdgeInsets.all(20.0),
                   controller: _memoListController,
-                  // top 12 for displaying shadow of memo
                   shrinkWrap: true,
-                  children: sameGroupContent
-                      .map((e) => Memo(
-                            key: ValueKey(e.contentID),
-                            source: e.content,
-                            userdata: DataLoader().getMyUserData()!,
-                            timeStamp: DateTime.now(),
-                            dragOptions: MemoDragOptions<int>(
-                              onDragStarted: () => setState(() => _isMemoDragging = true),
-                              onDragEnd: (_) => setState(() => _isMemoDragging = false),
-                              data: e.contentID,
-                            ),
-                          ))
-                      .toList(),
+                  itemCount: sameGroupContent.length,
+                  itemBuilder: (context, index) => Memo(
+                    key: ValueKey(sameGroupContent[index].contentID),
+                    source: sameGroupContent[index].content,
+                    userdata: DataLoader().getMyUserData()!,
+                    timeStamp: DateTime.now(),
+                    dragOptions: MemoDragOptions<int>(
+                      onDragStarted: () => setState(() => _isMemoDragging = true),
+                      onDragEnd: (_) => setState(() => _isMemoDragging = false),
+                      data: sameGroupContent[index].contentID,
+                    ),
+                  ),
+                  separatorBuilder: (context, index) => const SizedBox(
+                    height: 12,
+                  ),
                 ),
                 Align(
                   alignment: const Alignment(0.0, 0.8),
@@ -271,7 +278,7 @@ class _MainPageState extends State<MainPage> {
                             width: 80,
                             height: 80,
                             decoration: ShapeDecoration(
-                              shape: const CircleBorder(side: BorderSide()),
+                              shape: const CircleBorder(),
                               color: _isMemoOverTrashBin ? Colors.red : ColorSystem.gray07,
                             ),
                             child: const Center(child: Text("제거하기")),
@@ -282,6 +289,7 @@ class _MainPageState extends State<MainPage> {
                           },
                           onLeave: (_) => setState(() => _isMemoOverTrashBin = false),
                           onAcceptWithDetails: (details) async {
+                            setState(() => _isMemoOverTrashBin = false);
                             DataLoader().deleteContent(int.parse(details.data!.toString()));
                             await _updateSameGroupContent(selectedValue!.groupID);
                           },
@@ -350,15 +358,30 @@ class _MainPageState extends State<MainPage> {
             context: context,
             child: Padding(
               padding: const EdgeInsets.all(20.0),
-              child: BlueButton(
-                child: const Text("그룹 삭제"),
-                onPressed: () async {
-                  await DataLoader().deleteGroupById(selectedValue!.groupID);
-                  await _dataRefresh();
-                  if (mounted) {
-                    context.pop();
-                  }
-                },
+              child: Column(
+                children: [
+                  BlueButton(
+                    child: const Text("그룹 나가기"),
+                    onPressed: () async {
+                      await DataLoader().leaveGroupBy(selectedValue!.groupID);
+                      await _dataRefresh();
+                      if (mounted) {
+                        context.pop();
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  BlueButton(
+                    child: const Text("그룹 삭제"),
+                    onPressed: () async {
+                      await DataLoader().deleteGroupById(selectedValue!.groupID);
+                      await _dataRefresh();
+                      if (mounted) {
+                        context.pop();
+                      }
+                    },
+                  ),
+                ],
               ),
             ),
           ),

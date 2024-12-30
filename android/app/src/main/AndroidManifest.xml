@@ -6,7 +6,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:taskAffinity=""
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
@@ -31,7 +31,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <!-- <data android:scheme="http" android:host="${SERVER_HOST}" android:pathPrefix="/deeplink" /> -->
+                <!-- <data android:scheme="http" android:host="${SERVER_HOST}" /> -->
                 <data android:scheme="https" android:host="yeduk3.github.io" />
             </intent-filter>
         </activity>

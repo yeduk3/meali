@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:meali/common/group_info.dart';
+import 'package:meali/invitedscreen/invited_screen.dart';
 import 'package:meali/loginscreen/login_page.dart';
 import 'package:meali/mainscreen/main_page.dart';
 import 'package:meali/static/color_system.dart';
@@ -50,15 +52,11 @@ final _router = GoRouter(
     ),
     GoRoute(
       path: "/mainpage",
-      builder: (_, __) => const MainPage(),
-      routes: [
-        GoRoute(
-          path: '/userinvitation',
-          builder: (_, __) => Scaffold(
-            appBar: AppBar(title: const Text('INvitation Screen')),
-          ),
-        ),
-      ],
+      builder: (_, state) => MainPage(startgroup: state.extra as GroupInfo?),
+    ),
+    GoRoute(
+      path: '/userinvitation/:groupId',
+      builder: (_, state) => InvitedScreen(groupId: int.parse(state.pathParameters['groupId']!)),
     ),
   ],
 );

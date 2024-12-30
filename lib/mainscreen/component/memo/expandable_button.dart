@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:meali/mainscreen/blue_button.dart';
+import 'package:meali/common/component/blue_button.dart';
 import 'package:meali/mainscreen/component/memo/memo.dart';
 import 'package:meali/static/color_system.dart';
 import 'package:meali/static/font_system.dart';

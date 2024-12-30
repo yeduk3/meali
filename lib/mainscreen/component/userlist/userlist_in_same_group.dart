@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meali/common/user_data.dart';
+import 'package:meali/mainscreen/component/userlist/user_add_button.dart';
 import 'package:meali/mainscreen/component/userlist/user_image.dart';
 import 'package:meali/mainscreen/component/userlist/user_info.dart';
 import 'package:meali/static/color_system.dart';
@@ -10,10 +11,12 @@ class UserListInSameGroup extends StatelessWidget {
     super.key,
     required this.sameGroupUsers,
     required this.myData,
+    required this.groupId,
   });
 
   final List<UserData> sameGroupUsers;
   final UserData myData;
+  final int groupId;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +52,10 @@ class UserListInSameGroup extends StatelessWidget {
           const SizedBox(
             width: 12,
           ),
-          UserAddButton(username: myData.username),
+          UserAddButton(
+            username: myData.username,
+            groupId: groupId,
+          ),
         ],
       ),
     );

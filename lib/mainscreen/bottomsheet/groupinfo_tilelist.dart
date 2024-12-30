@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meali/common/user_data.dart';
-import 'package:meali/mainscreen/component/group_usercount_badge.dart';
+import 'package:meali/mainscreen/component/appbar/group_usercount_badge.dart';
 import 'package:meali/static/font_system.dart';
 
 class GroupInfoListTile extends StatelessWidget {
