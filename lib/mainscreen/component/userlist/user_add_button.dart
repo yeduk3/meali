@@ -38,8 +38,8 @@ class UserAddButton extends StatelessWidget {
     final TextTemplate defaultText = TextTemplate(
       text: '$username님이 그룹에 초대했어요!\n메모를 공유해보세요!',
       link: Link(
-        webUrl: Uri.parse('https://yeduk3.github.io/mainpage/userinvitation/$groupId'),
-        mobileWebUrl: Uri.parse('https://yeduk3.github.io/mainpage/userinvitation/$groupId'),
+        webUrl: Uri.parse('https://yeduk3.github.io/userinvitation/$groupId'),
+        mobileWebUrl: Uri.parse('https://yeduk3.github.io/userinvitation/$groupId'),
       ),
       buttonTitle: "그룹 들어가기",
     );
