@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:meali/common/group_info.dart';
+import 'package:meali/common/group_info_extended.dart';
 import 'package:meali/invitedscreen/invited_screen.dart';
 import 'package:meali/loginscreen/login_page.dart';
 import 'package:meali/mainscreen/main_page.dart';
@@ -52,7 +53,7 @@ final _router = GoRouter(
     ),
     GoRoute(
       path: "/mainpage",
-      builder: (_, state) => MainPage(startgroup: state.extra as GroupInfo?),
+      builder: (_, state) => MainPage(startgroup: state.extra as GroupInfoExtended?),
     ),
     GoRoute(
       path: '/userinvitation/:groupId',

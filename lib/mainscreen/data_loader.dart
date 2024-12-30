@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:meali/common/group_content.dart';
 import 'package:meali/common/group_info.dart';
+import 'package:meali/common/group_info_extended.dart';
 import 'package:meali/common/simple_uri_builder.dart';
 import 'package:meali/common/user_data.dart';
 import 'package:http/http.dart' as http;
@@ -95,7 +96,7 @@ class DataLoader {
     }
   }
 
-  Future<List<GroupInfo>> getGroupList() async {
+  Future<List<GroupInfoExtended>> getGroupList() async {
     // if (kDebugMode) print("Get Group Name List for App Bar");
     Uri uri = simpleUriBuilder(
       dotenv.env['GROUPDATA']!,
@@ -111,10 +112,11 @@ class DataLoader {
       // if (kDebugMode) print("Mapping start: ${resjson["groupnamelist"]}");
       // if (kDebugMode) print(resjson["groupnamelist"].runtimeType);
       List<dynamic> list = resjson["groupInfoList"];
-      List<GroupInfo> groupList = list
-          .map((e) => GroupInfo(
+      List<GroupInfoExtended> groupList = list
+          .map((e) => GroupInfoExtended(
                 groupName: e["groupName"] as String,
                 groupID: e["groupID"] as int,
+                userCount: e["userCount"] as int,
               ))
           .toList();
       // if (kDebugMode) print(groupList);

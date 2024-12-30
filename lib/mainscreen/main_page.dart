@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:meali/common/group_content.dart';
 import 'package:meali/common/group_info.dart';
+import 'package:meali/common/group_info_extended.dart';
 import 'package:meali/common/user_data.dart';
 import 'package:meali/common/component/blue_button.dart';
 import 'package:meali/mainscreen/bottomsheet/groupinfo_tilelist.dart';
@@ -25,12 +26,12 @@ import 'package:go_router/go_router.dart';
 // typedef ContentOrderMap = Map<int, List<int>>;
 
 class MainPage extends StatefulWidget {
-  MainPage({
+  const MainPage({
     super.key,
     this.startgroup,
   });
 
-  GroupInfo? startgroup;
+  final GroupInfoExtended? startgroup;
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -97,11 +98,11 @@ class _MainPageState extends State<MainPage> {
   //   }
   // }
 
-  GroupInfo? selectedValue;
+  GroupInfoExtended? selectedValue;
 
   List<UserData> sameGroupUsers = [];
   List<GroupContent> sameGroupContent = [];
-  List<GroupInfo> groupInfos = [];
+  List<GroupInfoExtended> groupInfos = [];
 
   final ScrollController _memoListController = ScrollController();
   final TextEditingController _memoEditController = TextEditingController();
@@ -136,7 +137,7 @@ class _MainPageState extends State<MainPage> {
 
   Future<void> _dataRefresh([int? currentGroupId]) async {
     // _readContentOrderAll();
-    List<GroupInfo> groupInfosReceiver = await DataLoader().getGroupList();
+    List<GroupInfoExtended> groupInfosReceiver = await DataLoader().getGroupList();
     setState(() {
       groupInfos = groupInfosReceiver;
     });
@@ -347,7 +348,7 @@ class _MainPageState extends State<MainPage> {
             selectedValue == null
                 ? const SizedBox.shrink()
                 : GroupUserCountBadge(
-                    sameGroupUsersCount: sameGroupUsers.length + 1,
+                    sameGroupUsersCount: selectedValue!.userCount,
                   ),
           ],
         ),
@@ -409,7 +410,7 @@ class _MainPageState extends State<MainPage> {
 
   Widget groupInfosMapper(e) => ListTile(
         title: GroupInfoListTile(
-          sameGroupUsersCount: sameGroupUsers.length + 1,
+          sameGroupUsersCount: e.userCount,
           groupName: e.groupName,
           checked: selectedValue?.groupID == e.groupID,
         ),
