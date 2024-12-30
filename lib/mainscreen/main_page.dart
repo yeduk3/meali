@@ -414,12 +414,13 @@ class _MainPageState extends State<MainPage> {
           groupName: e.groupName,
           checked: selectedValue?.groupID == e.groupID,
         ),
-        onTap: () {
+        onTap: () async {
           setState(() {
             selectedValue = e;
           });
           int groupID = groupInfos.firstWhere((group) => group.groupID == selectedValue?.groupID).groupID;
-          _updateSameGroupContent(groupID);
+          await _updateSameGroupUser(groupID);
+          await _updateSameGroupContent(groupID);
           Navigator.pop(context);
         },
       );
