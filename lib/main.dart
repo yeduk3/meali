@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
@@ -17,6 +18,8 @@ void main() async {
   );
 
   runApp(const MyApp());
+
+  print(await KakaoSdk.origin);
 }
 
 class MyApp extends StatelessWidget {

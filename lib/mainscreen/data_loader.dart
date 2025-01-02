@@ -46,17 +46,17 @@ class DataLoader {
 
     http.Response response = await http.get(uri);
     if (response.statusCode == 200) {
-      var resjson = convert.jsonDecode(response.body) as Map<String, dynamic>;
+      var resjson = convert.jsonDecode(response.body) as List<dynamic>;
 
       // if (kDebugMode) print("Mapping start: ${resjson["sameGroupUsers"]}");
-      List<dynamic> userList = resjson["sameGroupUsers"];
-      List<UserData> userDataList = userList.map((e) {
-        return UserData(
-          userId: e["userID"] as int,
-          username: e["username"] as String,
-          thumbnailUrl: e["thumbnailUrl"] as String,
-        );
-      }).toList();
+      // List<dynamic> userList = resjson["sameGroupUsers"];
+      List<UserData> userDataList = resjson
+          .map((e) => UserData(
+                userId: e["userID"] as int,
+                username: e["username"] as String,
+                thumbnailUrl: e["thumbnailUrl"] as String,
+              ))
+          .toList();
       // if (kDebugMode) print(userDataList);
       return userDataList;
     } else {
@@ -77,11 +77,11 @@ class DataLoader {
 
     http.Response response = await http.get(uri);
     if (response.statusCode == 200) {
-      var resjson = convert.jsonDecode(response.body) as Map<String, dynamic>;
+      var resjson = convert.jsonDecode(response.body) as List<dynamic>;
 
       // if (kDebugMode) print("Mapping start: ${resjson["groupContents"]}");
-      List<dynamic> userList = resjson["groupContents"];
-      List<GroupContent> userDataList = userList
+      // List<dynamic> userList = resjson["groupContents"];
+      List<GroupContent> userDataList = resjson
           .map((e) => GroupContent(
                 groupID: e["groupID"] as int,
                 content: e["content"] as String,
@@ -107,12 +107,12 @@ class DataLoader {
 
     http.Response response = await http.get(uri);
     if (response.statusCode == 200) {
-      var resjson = convert.jsonDecode(response.body) as Map<String, dynamic>;
+      var resjson = convert.jsonDecode(response.body) as List<dynamic>;
 
       // if (kDebugMode) print("Mapping start: ${resjson["groupnamelist"]}");
       // if (kDebugMode) print(resjson["groupnamelist"].runtimeType);
-      List<dynamic> list = resjson["groupInfoList"];
-      List<GroupInfoExtended> groupList = list
+      // List<dynamic> list = resjson["groupInfoList"];
+      List<GroupInfoExtended> groupList = resjson
           .map((e) => GroupInfoExtended(
                 groupName: e["groupName"] as String,
                 groupID: e["groupID"] as int,

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_flutter_sdk_talk/kakao_flutter_sdk_talk.dart';
 import 'package:meali/common/simple_uri_builder.dart';
@@ -108,6 +109,9 @@ class LoginController {
         if (kDebugMode) print('카카오계정으로 로그인 성공 ${token.accessToken}');
 
         isLoginSuccess = true;
+      } on PlatformException catch (platformException) {
+        if (platformException.code == "CANCELED") return false;
+        throw Exception('KakaoAccount Login Failed $platformException');
       } catch (error) {
         throw Exception('KakaoAccount Login Failed $error');
       }
