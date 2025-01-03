@@ -7,7 +7,7 @@ class ColorSystem {
 
   /// The gray primary color and swatch for EDS.
   ///
-  /// ![](Gray.png)
+  /// ![](https://raw.githubusercontent.com/yeduk3/meali/refs/heads/dev/lib/static/colorpreview/Gray.png)
   static const MaterialColor gray = MaterialColor(_grayPrimaryValue, <int, Color>{
     50: Color(0xFFFAFAFA),
     100: Color(0xFFF5F5F5),
