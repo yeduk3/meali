@@ -26,6 +26,8 @@ class ColorSystem {
   static const int _grayPrimaryValue = 0xFF8E8E8E;
 
   /// The black transparency primary color and swatch for EDS.
+  ///
+  /// ![](https://raw.githubusercontent.com/yeduk3/meali/refs/heads/dev/lib/static/colorpreview/BlackTransparent.png)
   static const MaterialColor blackTransparency = MaterialColor(
     _blackTransparencyPrimaryValue,
     <int, Color>{
@@ -44,6 +46,8 @@ class ColorSystem {
   static const int _blackTransparencyPrimaryValue = 0x80000000;
 
   /// The white transparency primary color and swatch for EDS.
+  ///
+  /// ![](https://raw.githubusercontent.com/yeduk3/meali/refs/heads/dev/lib/static/colorpreview/WhiteTransparent.png)
   static const MaterialColor whiteTransparency = MaterialColor(
     _whiteTransparencyPrimaryValue,
     <int, Color>{
