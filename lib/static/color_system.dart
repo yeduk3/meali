@@ -5,6 +5,23 @@ class ColorSystem {
 
   static const Color black = Colors.black;
 
+  /// The gray primary color and swatch for EDS.
+  ///
+  /// ![](Gray.png)
+  static const MaterialColor gray = MaterialColor(_grayPrimaryValue, <int, Color>{
+    50: Color(0xFFFAFAFA),
+    100: Color(0xFFF5F5F5),
+    200: Color(0xFFE9E9E9),
+    300: Color(0xFFDBDBDB),
+    400: Color(0xFFBABABA),
+    500: Color(_grayPrimaryValue),
+    600: Color(0xFF737373),
+    700: Color(0xFF545454),
+    800: Color(0xFF3E3E3E),
+    900: Color(0xFF1A1E22),
+  });
+  static const int _grayPrimaryValue = 0xFF8E8E8E;
+
   /// 0xFF191F28
   static const Color gray01 = Color(0xFF191F28);
 

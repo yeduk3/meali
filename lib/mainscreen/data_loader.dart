@@ -85,7 +85,9 @@ class DataLoader {
           .map((e) => GroupContent(
                 groupID: e["groupID"] as int,
                 content: e["content"] as String,
+                userId: e["userId"] as int,
                 contentID: e["contentID"] as int,
+                createdAt: DateTime.parse(e["createdAt"]),
               ))
           .toList();
       if (kDebugMode) print(userDataList);
@@ -131,7 +133,8 @@ class DataLoader {
     Uri uri = simpleUriBuilder(dotenv.env['UPLOAD_CONTENT']!);
 
     var body = convert.jsonEncode({
-      'groupID': "$groupID",
+      'groupID': '$groupID',
+      'userId': '${_myUserData?.userId}',
       'content': content,
     });
 

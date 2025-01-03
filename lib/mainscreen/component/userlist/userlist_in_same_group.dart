@@ -34,6 +34,9 @@ class UserListInSameGroup extends StatelessWidget {
           ),
           Row(
             children: sameGroupUsers
+                .where(
+                  (element) => element.userId != myData.userId,
+                )
                 .map(
                   (e) => Row(
                     children: [

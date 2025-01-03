@@ -259,8 +259,10 @@ class _MainPageState extends State<MainPage> {
                   itemBuilder: (context, index) => Memo(
                     key: ValueKey(sameGroupContent[index].contentID),
                     source: sameGroupContent[index].content,
-                    userdata: DataLoader().getMyUserData()!,
-                    timeStamp: DateTime.now(),
+                    userdata: sameGroupUsers.firstWhere(
+                      (element) => element.userId == sameGroupContent[index].userId,
+                    ),
+                    timeStamp: sameGroupContent[index].createdAt,
                     dragOptions: MemoDragOptions<int>(
                       onDragStarted: () => setState(() => _isMemoDragging = true),
                       onDragEnd: (_) => setState(() => _isMemoDragging = false),

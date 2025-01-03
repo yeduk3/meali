@@ -10,7 +10,7 @@ class Memo extends StatelessWidget {
   /// title of memo
   final String source;
   late final Widget title;
-  late List<Widget>? content;
+  late final List<Widget>? content;
 
   /// user data(name, thumbnailUrl)
   final UserData userdata;
@@ -18,7 +18,7 @@ class Memo extends StatelessWidget {
   /// edit time
   final DateTime timeStamp;
 
-  MemoDragOptions? dragOptions;
+  final MemoDragOptions? dragOptions;
 
   Memo({
     super.key,
@@ -30,6 +30,20 @@ class Memo extends StatelessWidget {
     var (title, content) = MealiContentParser.stringToMemo(source);
     this.title = title;
     this.content = content;
+  }
+
+  String dateFormatter(DateTime timeStamp) {
+    var difference = DateTime.now().difference(timeStamp);
+
+    if (difference.inSeconds < 60) {
+      return '방금 전';
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes.toString()}분 전';
+    } else if (difference.inHours < 60) {
+      return '${difference.inHours.toString()}시간 전';
+    } else {
+      return '$difference';
+    }
   }
 
   @override
@@ -53,7 +67,7 @@ class Memo extends StatelessWidget {
         const SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [UserInfo.horizontal(userdata: userdata), Text(timeStamp.toString())],
+          children: [UserInfo.horizontal(userdata: userdata), Text(dateFormatter(timeStamp))],
         ),
       ],
     );
